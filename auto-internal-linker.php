@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Auto-Internal Linker
- * Plugin URI: https://github.com/your-repo-link
+ * Plugin URI: https://github.com/b0c0de
  * Description: A WordPress plugin that automatically links specific keywords to pre-defined internal URLs.
  * Version: 1.0.0
  * Author: Bojan Cvjetković
@@ -9,18 +9,22 @@
  * License: GPL2
  */
 
-// Prevent direct access
 if (!defined('ABSPATH')) {
     exit;
 }
 
+// Include necessary files
+require_once plugin_dir_path(__FILE__) . 'includes/class-linker.php';
+require_once plugin_dir_path(__FILE__) . 'admin/settings-page.php';
+
+// Initialize the plugin
 class AutoInternalLinker {
     private static $instance = null;
-    
+
     private function __construct() {
         add_action('admin_menu', [$this, 'create_settings_page']);
         add_action('admin_init', [$this, 'register_settings']);
-        add_filter('the_content', [$this, 'apply_internal_links']);
+        add_filter('the_content', ['AutoInternalLinker_Linker', 'apply_internal_links']);
     }
 
     public static function get_instance() {
@@ -31,37 +35,13 @@ class AutoInternalLinker {
     }
 
     public function create_settings_page() {
-        add_options_page('Auto Internal Linker', 'Auto Linker', 'manage_options', 'auto-internal-linker', [$this, 'settings_page_html']);
+        add_options_page('Auto Internal Linker', 'Auto Linker', 'manage_options', 'auto-internal-linker', ['AutoInternalLinker_Settings', 'settings_page_html']);
     }
 
     public function register_settings() {
         register_setting('auto_internal_linker_group', 'auto_internal_links');
     }
-
-    public function settings_page_html() {
-        ?>
-        <div class="wrap">
-            <h1>Auto-Internal Linker Settings</h1>
-            <form method="post" action="options.php">
-                <?php
-                settings_fields('auto_internal_linker_group');
-                do_settings_sections('auto_internal_linker_group');
-                submit_button();
-                ?>
-            </form>
-        </div>
-        <?php
-    }
-
-    public function apply_internal_links($content) {
-        $links = get_option('auto_internal_links', []);
-        if (!empty($links)) {
-            foreach ($links as $keyword => $url) {
-                $content = preg_replace("/\b" . preg_quote($keyword, '/') . "\b/i", '<a href="' . esc_url($url) . '">' . esc_html($keyword) . '</a>', $content, 1);
-            }
-        }
-        return $content;
-    }
 }
 
+// Start the plugin
 AutoInternalLinker::get_instance();
