@@ -1,16 +1,42 @@
-# Auto-Internal Linker for WordPress  
+# Auto-Internal Linker for WordPress
 
-🚀 **Automatically add internal links to your WordPress posts to improve SEO and user experience.**  
+## Description
+Auto-Internal Linker is a WordPress plugin that automatically links specific keywords to pre-defined internal URLs. This improves internal linking, SEO, and user navigation.
 
-## Features  
-✅ Define custom keyword-to-URL pairs  
-✅ Set limits (e.g., max links per keyword per post)  
-✅ Exclude certain post types or pages from linking  
-✅ Performance-optimized for large WordPress sites  
-✅ Simple admin panel to manage links  
+## Features
+- Automatically replace keywords with internal links.
+- Customizable keyword-link pairs.
+- Apply linking only once per post.
+- Admin dashboard settings page.
+- Easy to use and lightweight.
 
-## Contributing  
-We welcome contributions! Open an issue or submit a pull request.  
+## Installation
+1. Download and extract the plugin files.
+2. Upload the `auto-internal-linker` folder to the `/wp-content/plugins/` directory.
+3. Activate the plugin through the WordPress admin panel.
+4. Configure keyword-link pairs under **Settings > Auto Linker**.
 
-## License  
-GPL v2 or later.  
+## Usage
+- Go to **Settings > Auto Linker**.
+- Add keywords and their respective URLs.
+- The plugin will automatically insert links in posts.
+
+## Development
+### Tech Stack:
+- **PHP** (Core WordPress Plugin Development)
+- **JavaScript** (Admin UI Enhancements)
+- **MySQL** (Store keyword-URL pairs)
+
+### Roadmap:
+1. Improve regex efficiency.
+2. Add post-type filtering.
+3. Optimize database queries.
+
+## Contributing
+Feel free to fork, submit issues, or create pull requests on GitHub.
+
+## License
+This project is licensed under the GPL-2.0 License.
+
+## Author
+Created by **Bojan Cvjetković** | [Brisk Web Services](https://brisk-web-services.com)
