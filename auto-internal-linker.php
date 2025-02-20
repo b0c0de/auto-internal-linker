@@ -41,6 +41,13 @@ class AutoInternalLinker {
     public function register_settings() {
         register_setting('auto_internal_linker_group', 'auto_internal_links');
     }
+
+    public function enqueue_admin_assets() {
+    wp_enqueue_style('auto-internal-linker-admin', plugin_dir_url(__FILE__) . 'assets/admin-style.css');
+    wp_enqueue_script('auto-internal-linker-admin', plugin_dir_url(__FILE__) . 'assets/admin-script.js', ['jquery'], null, true);
+}
+add_action('admin_enqueue_scripts', ['AutoInternalLinker', 'enqueue_admin_assets']);
+
 }
 
 // Start the plugin
