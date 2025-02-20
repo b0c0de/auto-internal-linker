@@ -5,6 +5,8 @@ if (!defined('ABSPATH')) {
 
 class AutoInternalLinker_Settings {
     public static function settings_page_html() {
+        $stored_links = get_option('auto_internal_links', '{}');
+        $links = json_decode($stored_links, true);
         ?>
         <div class="wrap">
             <h1>Auto-Internal Linker Settings</h1>
@@ -13,18 +15,80 @@ class AutoInternalLinker_Settings {
                 settings_fields('auto_internal_linker_group');
                 do_settings_sections('auto_internal_linker_group');
                 ?>
+
                 <table class="form-table">
                     <tr valign="top">
                         <th scope="row">Keyword-Link Pairs</th>
                         <td>
-                            <textarea name="auto_internal_links" rows="5" cols="50"><?php echo esc_textarea(get_option('auto_internal_links', '')); ?></textarea>
-                            <p>Enter keyword-link pairs in JSON format: {"keyword": "https://example.com"}</p>
+                            <table id="keywords-table">
+                                <thead>
+                                    <tr>
+                                        <th>Keyword</th>
+                                        <th>URL</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php if (!empty($links)): ?>
+                                        <?php foreach ($links as $keyword => $url): ?>
+                                            <tr>
+                                                <td><input type="text" class="keyword-input" value="<?php echo esc_attr($keyword); ?>"></td>
+                                                <td><input type="url" class="url-input" value="<?php echo esc_url($url); ?>"></td>
+                                                <td><button type="button" class="remove-keyword button">Remove</button></td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
+                            <button type="button" id="add-keyword" class="button">Add Keyword</button>
+                            <input type="hidden" name="auto_internal_links" id="auto_internal_links">
                         </td>
                     </tr>
                 </table>
+
                 <?php submit_button(); ?>
             </form>
         </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const tableBody = document.querySelector("#keywords-table tbody");
+                const addKeywordBtn = document.getElementById("add-keyword");
+                const hiddenInput = document.getElementById("auto_internal_links");
+
+                function updateHiddenInput() {
+                    let data = {};
+                    tableBody.querySelectorAll("tr").forEach(row => {
+                        const keyword = row.querySelector(".keyword-input").value.trim();
+                        const url = row.querySelector(".url-input").value.trim();
+                        if (keyword && url) {
+                            data[keyword] = url;
+                        }
+                    });
+                    hiddenInput.value = JSON.stringify(data);
+                }
+
+                addKeywordBtn.addEventListener("click", function () {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td><input type="text" class="keyword-input"></td>
+                        <td><input type="url" class="url-input"></td>
+                        <td><button type="button" class="remove-keyword button">Remove</button></td>
+                    `;
+                    tableBody.appendChild(row);
+                    updateHiddenInput();
+                });
+
+                tableBody.addEventListener("click", function (event) {
+                    if (event.target.classList.contains("remove-keyword")) {
+                        event.target.closest("tr").remove();
+                        updateHiddenInput();
+                    }
+                });
+
+                tableBody.addEventListener("input", updateHiddenInput);
+            });
+        </script>
         <?php
     }
 }
