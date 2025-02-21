@@ -178,9 +178,14 @@ function auto_internal_linker_create_table() {
 }
 
 public function apply_internal_links($content) {
-    global $wpdb;
-    $table_name = $wpdb->prefix . 'auto_internal_links';
+    global $wpdb, $post;
 
+    // Check if linking is disabled for this post
+    if (get_post_meta($post->ID, '_disable_auto_internal_links', true) == '1') {
+        return $content;
+    }
+
+    $table_name = $wpdb->prefix . 'auto_internal_links';
     $links = $wpdb->get_results("SELECT * FROM $table_name WHERE enabled = 1", ARRAY_A);
 
     if (!empty($links)) {
@@ -191,6 +196,7 @@ public function apply_internal_links($content) {
 
     return $content;
 }
+
 
 // Add meta box to post editor
 function auto_internal_linker_add_meta_box() {
