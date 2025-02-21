@@ -381,6 +381,48 @@ function track_internal_link_click() {
 }
 add_action('wp_enqueue_scripts', 'auto_internal_linker_enqueue_scripts');
 
+    function auto_internal_linker_display_click_stats() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'auto_internal_links_tracking';
+
+    $stats = $wpdb->get_results("
+        SELECT k.keyword, t.click_count, t.last_clicked, p.post_title
+        FROM $table_name t
+        JOIN {$wpdb->prefix}auto_internal_links k ON t.keyword_id = k.id
+        JOIN {$wpdb->prefix}posts p ON t.post_id = p.ID
+        ORDER BY t.click_count DESC
+    ");
+
+    echo "<h2>Click Statistics</h2>";
+    echo "<table class='widefat'>
+            <thead>
+                <tr>
+                    <th>Keyword</th>
+                    <th>Post</th>
+                    <th>Click Count</th>
+                    <th>Last Clicked</th>
+                </tr>
+            </thead>
+            <tbody>";
+    
+    foreach ($stats as $stat) {
+        echo "<tr>
+                <td>{$stat->keyword}</td>
+                <td>{$stat->post_title}</td>
+                <td>{$stat->click_count}</td>
+                <td>{$stat->last_clicked}</td>
+              </tr>";
+    }
+
+    echo "</tbody></table>";
+}
+add_action('admin_menu', function () {
+    add_submenu_page(
+        'auto_internal_linker', 'Click Statistics', 'Click Stats', 'manage_options', 'click-stats', 'auto_internal_linker_display_click_stats'
+    );
+});
+
+
 
 
 
