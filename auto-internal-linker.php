@@ -122,5 +122,28 @@ add_action('admin_enqueue_scripts', ['AutoInternalLinker', 'enqueue_admin_assets
 
 }
 
+// Function to create custom database table
+function auto_internal_linker_create_table() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'auto_internal_links';
+    $charset_collate = $wpdb->get_charset_collate();
+
+    $sql = "CREATE TABLE $table_name (
+        id mediumint(9) NOT NULL AUTO_INCREMENT,
+        keyword varchar(255) NOT NULL,
+        url text NOT NULL,
+        enabled tinyint(1) NOT NULL DEFAULT 1,
+        PRIMARY KEY  (id),
+        UNIQUE KEY keyword (keyword)
+    ) $charset_collate;";
+
+    require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+    dbDelta($sql);
+}
+
+// Hook to create table on plugin activation
+register_activation_hook(__FILE__, 'auto_internal_linker_create_table');
+
+
 // Start the plugin
 AutoInternalLinker::get_instance();
