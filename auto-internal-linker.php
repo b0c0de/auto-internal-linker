@@ -252,6 +252,21 @@ function auto_internal_linker_save_meta_box_data($post_id) {
 }
 add_action('save_post', 'auto_internal_linker_save_meta_box_data');
 
+function auto_internal_linker_update_db() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'auto_internal_links';
+    $charset_collate = $wpdb->get_charset_collate();
+
+    // Check if column already exists
+    $columns = $wpdb->get_results("SHOW COLUMNS FROM `$table_name` LIKE 'synonyms'");
+
+    if (empty($columns)) {
+        $wpdb->query("ALTER TABLE $table_name ADD COLUMN synonyms TEXT AFTER keyword");
+    }
+}
+register_activation_hook(__FILE__, 'auto_internal_linker_update_db');
+
+
 
 
 // Hook to create table on plugin activation
