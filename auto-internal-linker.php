@@ -266,6 +266,59 @@ function auto_internal_linker_update_db() {
 }
 register_activation_hook(__FILE__, 'auto_internal_linker_update_db');
 
+// Modify the settings form to include synonyms
+function auto_internal_linker_settings_page_html() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'auto_internal_links';
+    $links = $wpdb->get_results("SELECT * FROM $table_name", ARRAY_A);
+    ?>
+    <div class="wrap">
+        <h1>Auto-Internal Linker Settings</h1>
+        <form method="post">
+            <table class="form-table">
+                <tr>
+                    <th><label for="keyword">Keyword</label></th>
+                    <td><input type="text" name="keyword" id="keyword" required></td>
+                </tr>
+                <tr>
+                    <th><label for="synonyms">Synonyms (comma-separated)</label></th>
+                    <td><input type="text" name="synonyms" id="synonyms"></td>
+                </tr>
+                <tr>
+                    <th><label for="url">URL</label></th>
+                    <td><input type="url" name="url" id="url" required></td>
+                </tr>
+            </table>
+            <p><input type="submit" name="submit_keyword" value="Add Keyword" class="button button-primary"></p>
+        </form>
+
+        <h2>Existing Keywords</h2>
+        <table class="widefat">
+            <thead>
+                <tr>
+                    <th>Keyword</th>
+                    <th>Synonyms</th>
+                    <th>URL</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($links as $link) { ?>
+                    <tr>
+                        <td><?php echo esc_html($link['keyword']); ?></td>
+                        <td><?php echo esc_html($link['synonyms']); ?></td>
+                        <td><a href="<?php echo esc_url($link['url']); ?>" target="_blank"><?php echo esc_url($link['url']); ?></a></td>
+                        <td>
+                            <a href="?delete_keyword=<?php echo $link['id']; ?>" class="button button-danger">Delete</a>
+                        </td>
+                    </tr>
+                <?php } ?>
+            </tbody>
+        </table>
+    </div>
+    <?php
+}
+
 
 
 
