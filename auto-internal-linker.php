@@ -22,6 +22,8 @@ class AutoInternalLinker {
     private static $instance = null;
 
     public function settings_page_html() {
+    $links = get_option('auto_internal_links', []);
+
     ?>
     <div class="wrap">
         <h1>Auto-Internal Linker Settings</h1>
@@ -29,21 +31,64 @@ class AutoInternalLinker {
             <?php
             settings_fields('auto_internal_linker_group');
             do_settings_sections('auto_internal_linker_group');
-            submit_button();
             ?>
+            
+            <table class="form-table">
+                <tr>
+                    <th>Keyword</th>
+                    <th>URL</th>
+                    <th>Enable</th>
+                    <th>Remove</th>
+                </tr>
 
-            <h2>Exclude from Linking</h2>
-            <label for="auto_internal_excluded_pages">Exclude Pages (comma-separated post IDs):</label><br>
-            <input type="text" id="auto_internal_excluded_pages" name="auto_internal_excluded_pages" value="<?php echo esc_attr(get_option('auto_internal_excluded_pages', '')); ?>" style="width: 100%;"><br><br>
+                <tbody id="auto-linker-table">
+                    <?php if (!empty($links)) : ?>
+                        <?php foreach ($links as $keyword => $data) : ?>
+                            <tr>
+                                <td><input type="text" name="auto_internal_links[<?php echo esc_attr($keyword); ?>][keyword]" value="<?php echo esc_attr($keyword); ?>"></td>
+                                <td><input type="text" name="auto_internal_links[<?php echo esc_attr($keyword); ?>][url]" value="<?php echo esc_url($data['url']); ?>"></td>
+                                <td><input type="checkbox" name="auto_internal_links[<?php echo esc_attr($keyword); ?>][enabled]" value="1" <?php checked($data['enabled'], 1); ?>></td>
+                                <td><button type="button" class="remove-keyword button">Remove</button></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
 
-            <label for="auto_internal_excluded_post_types">Exclude Post Types (comma-separated):</label><br>
-            <input type="text" id="auto_internal_excluded_post_types" name="auto_internal_excluded_post_types" value="<?php echo esc_attr(get_option('auto_internal_excluded_post_types', '')); ?>" style="width: 100%;"><br><br>
-
+            <button type="button" id="add-keyword" class="button">Add Keyword</button>
+            <br><br>
+            
             <?php submit_button(); ?>
         </form>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('add-keyword').addEventListener('click', function () {
+                let table = document.getElementById('auto-linker-table');
+                let row = document.createElement('tr');
+
+                row.innerHTML = `
+                    <td><input type="text" name="auto_internal_links[new][keyword]" value=""></td>
+                    <td><input type="text" name="auto_internal_links[new][url]" value=""></td>
+                    <td><input type="checkbox" name="auto_internal_links[new][enabled]" value="1"></td>
+                    <td><button type="button" class="remove-keyword button">Remove</button></td>
+                `;
+
+                table.appendChild(row);
+            });
+
+            document.addEventListener('click', function (event) {
+                if (event.target.classList.contains('remove-keyword')) {
+                    event.target.closest('tr').remove();
+                }
+            });
+        });
+    </script>
+
     <?php
 }
+
 
     private function __construct() {
         add_action('admin_menu', [$this, 'create_settings_page']);
