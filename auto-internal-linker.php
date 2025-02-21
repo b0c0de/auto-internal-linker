@@ -94,33 +94,24 @@ public function apply_internal_links($content) {
         return $content; // Don't modify content in the admin area
     }
 
-    // Handle multisite environment
-    if (is_multisite()) {
-        global $blog_id;
-        $cache_key = 'auto_internal_links_cache_' . $blog_id;
-    } else {
-        $cache_key = 'auto_internal_links_cache';
-    }
+    $links = get_option('auto_internal_links', []);
 
-    $links = get_transient($cache_key);
-
-    // Fetch from the database only if cache is empty
     if ($links === false) {
-        if (is_multisite()) {
-            switch_to_blog($blog_id);
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('Auto-Internal Linker Error: Failed to retrieve link settings.');
         }
-
-        $links = get_option('auto_internal_links', []);
-
-        if (is_multisite()) {
-            restore_current_blog();
-        }
-
-        set_transient($cache_key, $links, HOUR_IN_SECONDS);
+        return $content;
     }
 
     if (!empty($links)) {
         foreach ($links as $keyword => $url) {
+            if (empty($keyword) || empty($url)) {
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log("Auto-Internal Linker Warning: Empty keyword or URL for {$keyword}");
+                }
+                continue;
+            }
+
             if (stripos($content, $keyword) !== false) {
                 $content = preg_replace("/\b" . preg_quote($keyword, '/') . "\b/i", '<a href="' . esc_url($url) . '">' . esc_html($keyword) . '</a>', $content, 1);
             }
@@ -145,6 +136,16 @@ public function apply_internal_links($content) {
             delete_transient('ail_admin_error');
         }
     }
+
+    public function admin_notices() {
+    if (!get_option('auto_internal_links')) {
+        echo '<div class="notice notice-warning is-dismissible">
+                <p><strong>Auto-Internal Linker:</strong> No keywords have been set. Please configure your keyword links in <a href="options-general.php?page=auto-internal-linker">plugin settings</a>.</p>
+              </div>';
+    }
+}
+add_action('admin_notices', [$this, 'admin_notices']);
+
 
 }
 
