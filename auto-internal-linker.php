@@ -89,18 +89,34 @@ class AutoInternalLinker {
         <?php
     }
 
- public function apply_internal_links($content) {
+public function apply_internal_links($content) {
     if (is_admin()) {
         return $content; // Don't modify content in the admin area
     }
 
-    $cache_key = 'auto_internal_links_cache';
+    // Handle multisite environment
+    if (is_multisite()) {
+        global $blog_id;
+        $cache_key = 'auto_internal_links_cache_' . $blog_id;
+    } else {
+        $cache_key = 'auto_internal_links_cache';
+    }
+
     $links = get_transient($cache_key);
 
-    // Fetch from database only if cache is empty
+    // Fetch from the database only if cache is empty
     if ($links === false) {
+        if (is_multisite()) {
+            switch_to_blog($blog_id);
+        }
+
         $links = get_option('auto_internal_links', []);
-        set_transient($cache_key, $links, HOUR_IN_SECONDS); // Cache for 1 hour
+
+        if (is_multisite()) {
+            restore_current_blog();
+        }
+
+        set_transient($cache_key, $links, HOUR_IN_SECONDS);
     }
 
     if (!empty($links)) {
@@ -113,6 +129,7 @@ class AutoInternalLinker {
 
     return $content;
 }
+
 
      private function log_error($message) {
         if (WP_DEBUG) {
