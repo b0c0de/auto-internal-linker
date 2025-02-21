@@ -20,26 +20,29 @@ class AutoInternalLinker_Settings {
                     <tr valign="top">
                         <th scope="row">Keyword-Link Pairs</th>
                         <td>
-                            <table id="keywords-table">
-                                <thead>
-                                    <tr>
-                                        <th>Keyword</th>
-                                        <th>URL</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php if (!empty($links)): ?>
-                                        <?php foreach ($links as $keyword => $url): ?>
-                                            <tr>
-                                                <td><input type="text" class="keyword-input" value="<?php echo esc_attr($keyword); ?>"></td>
-                                                <td><input type="url" class="url-input" value="<?php echo esc_url($url); ?>"></td>
-                                                <td><button type="button" class="remove-keyword button">Remove</button></td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    <?php endif; ?>
-                                </tbody>
-                            </table>
+                        <table id="keywords-table">
+    <thead>
+        <tr>
+            <th>Keyword</th>
+            <th>URL</th>
+            <th>Max Links</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php if (!empty($links)): ?>
+            <?php foreach ($links as $keyword => $data): ?>
+                <tr>
+                    <td><input type="text" class="keyword-input" value="<?php echo esc_attr($keyword); ?>"></td>
+                    <td><input type="url" class="url-input" value="<?php echo esc_url($data['url']); ?>"></td>
+                    <td><input type="number" class="limit-input" value="<?php echo esc_attr($data['limit']); ?>" min="1"></td>
+                    <td><button type="button" class="remove-keyword button">Remove</button></td>
+                </tr>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </tbody>
+</table>
+
                             <button type="button" id="add-keyword" class="button">Add Keyword</button>
                             <input type="hidden" name="auto_internal_links" id="auto_internal_links">
                         </td>
