@@ -192,6 +192,35 @@ public function apply_internal_links($content) {
     return $content;
 }
 
+// Add meta box to post editor
+function auto_internal_linker_add_meta_box() {
+    add_meta_box(
+        'auto_internal_linker_meta_box',
+        'Auto Internal Linker',
+        'auto_internal_linker_meta_box_callback',
+        ['post', 'page'], // Add to posts and pages
+        'side',
+        'default'
+    );
+}
+add_action('add_meta_boxes', 'auto_internal_linker_add_meta_box');
+
+// Callback function to render meta box
+function auto_internal_linker_meta_box_callback($post) {
+    $value = get_post_meta($post->ID, '_disable_auto_internal_links', true);
+    wp_nonce_field('auto_internal_linker_meta_box', 'auto_internal_linker_meta_box_nonce');
+
+    ?>
+    <p>
+        <label for="disable_auto_internal_links">
+            <input type="checkbox" name="disable_auto_internal_links" id="disable_auto_internal_links" value="1" <?php checked($value, '1'); ?>>
+            Disable auto internal linking for this post
+        </label>
+    </p>
+    <?php
+}
+
+
 
 // Hook to create table on plugin activation
 register_activation_hook(__FILE__, 'auto_internal_linker_create_table');
