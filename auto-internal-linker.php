@@ -190,7 +190,15 @@ public function apply_internal_links($content) {
 
     if (!empty($links)) {
         foreach ($links as $link) {
-            $content = preg_replace("/\b" . preg_quote($link['keyword'], '/') . "\b/i", '<a href="' . esc_url($link['url']) . '">' . esc_html($link['keyword']) . '</a>', $content, 1);
+            $keyword = preg_quote($link['keyword'], '/');
+            $synonyms = !empty($link['synonyms']) ? explode(',', $link['synonyms']) : [];
+            
+            // Prepare regex pattern with synonyms
+            $all_keywords = array_map('trim', array_merge([$link['keyword']], $synonyms));
+            $pattern = '/\b(' . implode('|', array_map('preg_quote', $all_keywords)) . ')\b/i';
+
+            // Replace only the first occurrence of any keyword or synonym
+            $content = preg_replace($pattern, '<a href="' . esc_url($link['url']) . '">$1</a>', $content, 1);
         }
     }
 
