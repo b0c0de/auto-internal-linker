@@ -21,18 +21,15 @@ require_once plugin_dir_path(__FILE__) . 'admin/settings-page.php';
 class AutoInternalLinker {
     private static $instance = null;
 
-    public function settings_page_html() {
-    $links = get_option('auto_internal_links', []);
-
+   public function settings_page_html() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'auto_internal_links';
+    $links = $wpdb->get_results("SELECT * FROM $table_name", ARRAY_A);
     ?>
+
     <div class="wrap">
         <h1>Auto-Internal Linker Settings</h1>
-        <form method="post" action="options.php">
-            <?php
-            settings_fields('auto_internal_linker_group');
-            do_settings_sections('auto_internal_linker_group');
-            ?>
-            
+        <form method="post" action="">
             <table class="form-table">
                 <tr>
                     <th>Keyword</th>
@@ -42,23 +39,21 @@ class AutoInternalLinker {
                 </tr>
 
                 <tbody id="auto-linker-table">
-                    <?php if (!empty($links)) : ?>
-                        <?php foreach ($links as $keyword => $data) : ?>
-                            <tr>
-                                <td><input type="text" name="auto_internal_links[<?php echo esc_attr($keyword); ?>][keyword]" value="<?php echo esc_attr($keyword); ?>"></td>
-                                <td><input type="text" name="auto_internal_links[<?php echo esc_attr($keyword); ?>][url]" value="<?php echo esc_url($data['url']); ?>"></td>
-                                <td><input type="checkbox" name="auto_internal_links[<?php echo esc_attr($keyword); ?>][enabled]" value="1" <?php checked($data['enabled'], 1); ?>></td>
-                                <td><button type="button" class="remove-keyword button">Remove</button></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
+                    <?php foreach ($links as $link) : ?>
+                        <tr>
+                            <td><input type="text" name="keywords[<?php echo esc_attr($link['id']); ?>][keyword]" value="<?php echo esc_attr($link['keyword']); ?>"></td>
+                            <td><input type="text" name="keywords[<?php echo esc_attr($link['id']); ?>][url]" value="<?php echo esc_url($link['url']); ?>"></td>
+                            <td><input type="checkbox" name="keywords[<?php echo esc_attr($link['id']); ?>][enabled]" value="1" <?php checked($link['enabled'], 1); ?>></td>
+                            <td><button type="button" class="remove-keyword button">Remove</button></td>
+                        </tr>
+                    <?php endforeach; ?>
                 </tbody>
             </table>
 
             <button type="button" id="add-keyword" class="button">Add Keyword</button>
             <br><br>
-            
-            <?php submit_button(); ?>
+
+            <?php submit_button('Save Keywords', 'primary', 'save_keywords'); ?>
         </form>
     </div>
 
@@ -69,9 +64,9 @@ class AutoInternalLinker {
                 let row = document.createElement('tr');
 
                 row.innerHTML = `
-                    <td><input type="text" name="auto_internal_links[new][keyword]" value=""></td>
-                    <td><input type="text" name="auto_internal_links[new][url]" value=""></td>
-                    <td><input type="checkbox" name="auto_internal_links[new][enabled]" value="1"></td>
+                    <td><input type="text" name="new_keyword[]" value=""></td>
+                    <td><input type="text" name="new_url[]" value=""></td>
+                    <td><input type="checkbox" name="new_enabled[]" value="1" checked></td>
                     <td><button type="button" class="remove-keyword button">Remove</button></td>
                 `;
 
@@ -88,6 +83,7 @@ class AutoInternalLinker {
 
     <?php
 }
+
 
 
     private function __construct() {
