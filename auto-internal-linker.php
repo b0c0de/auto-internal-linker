@@ -21,6 +21,30 @@ require_once plugin_dir_path(__FILE__) . 'admin/settings-page.php';
 class AutoInternalLinker {
     private static $instance = null;
 
+    public function settings_page_html() {
+    ?>
+    <div class="wrap">
+        <h1>Auto-Internal Linker Settings</h1>
+        <form method="post" action="options.php">
+            <?php
+            settings_fields('auto_internal_linker_group');
+            do_settings_sections('auto_internal_linker_group');
+            submit_button();
+            ?>
+
+            <h2>Exclude from Linking</h2>
+            <label for="auto_internal_excluded_pages">Exclude Pages (comma-separated post IDs):</label><br>
+            <input type="text" id="auto_internal_excluded_pages" name="auto_internal_excluded_pages" value="<?php echo esc_attr(get_option('auto_internal_excluded_pages', '')); ?>" style="width: 100%;"><br><br>
+
+            <label for="auto_internal_excluded_post_types">Exclude Post Types (comma-separated):</label><br>
+            <input type="text" id="auto_internal_excluded_post_types" name="auto_internal_excluded_post_types" value="<?php echo esc_attr(get_option('auto_internal_excluded_post_types', '')); ?>" style="width: 100%;"><br><br>
+
+            <?php submit_button(); ?>
+        </form>
+    </div>
+    <?php
+}
+
     private function __construct() {
         add_action('admin_menu', [$this, 'create_settings_page']);
         add_action('admin_init', [$this, 'register_settings']);
