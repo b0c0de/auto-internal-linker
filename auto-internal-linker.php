@@ -118,6 +118,46 @@ add_action('admin_enqueue_scripts', ['AutoInternalLinker', 'enqueue_admin_assets
 
 }
 
+public function save_keywords() {
+    if (!current_user_can('manage_options')) {
+        return;
+    }
+
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'auto_internal_links';
+
+    // Update existing keywords
+    if (!empty($_POST['keywords'])) {
+        foreach ($_POST['keywords'] as $id => $data) {
+            $wpdb->update(
+                $table_name,
+                [
+                    'keyword' => sanitize_text_field($data['keyword']),
+                    'url' => esc_url_raw($data['url']),
+                    'enabled' => isset($data['enabled']) ? 1 : 0
+                ],
+                ['id' => (int) $id]
+            );
+        }
+    }
+
+    // Insert new keywords
+    if (!empty($_POST['new_keyword'])) {
+        for ($i = 0; $i < count($_POST['new_keyword']); $i++) {
+            $wpdb->insert(
+                $table_name,
+                [
+                    'keyword' => sanitize_text_field($_POST['new_keyword'][$i]),
+                    'url' => esc_url_raw($_POST['new_url'][$i]),
+                    'enabled' => isset($_POST['new_enabled'][$i]) ? 1 : 0
+                ]
+            );
+        }
+    }
+}
+add_action('admin_post_save_keywords', ['AutoInternalLinker', 'save_keywords']);
+
+
 // Function to create custom database table
 function auto_internal_linker_create_table() {
     global $wpdb;
