@@ -4,22 +4,27 @@ if (!defined('ABSPATH')) {
 }
 
 class AutoInternalLinker_Linker {
-    public static function apply_internal_links($content) {
-        $json_links = get_option('auto_internal_links', '');
-        
-        if (empty($json_links)) {
-            return $content;
-        }
+    public function apply_internal_links($content) {
+    $links = get_option('auto_internal_links', '{}');
+    $links = json_decode($links, true);
 
-        $links = json_decode($json_links, true);
-        if (!is_array($links)) {
-            return $content;
-        }
+    if (!empty($links)) {
+        foreach ($links as $keyword => $data) {
+            $url = esc_url($data['url']);
+            $limit = isset($data['limit']) ? intval($data['limit']) : 1;
 
-        foreach ($links as $keyword => $url) {
-            $content = preg_replace("/\b" . preg_quote($keyword, '/') . "\b/i", '<a href="' . esc_url($url) . '">' . esc_html($keyword) . '</a>', $content, 1);
+            $pattern = "/\b" . preg_quote($keyword, '/') . "\b/i";
+            $count = 0;
+
+            $content = preg_replace_callback($pattern, function ($matches) use ($url, $keyword, &$count, $limit) {
+                if ($count < $limit) {
+                    $count++;
+                    return '<a href="' . $url . '">' . esc_html($keyword) . '</a>';
+                }
+                return $matches[0];
+            }, $content);
         }
-        
-        return $content;
     }
+
+    return $content;
 }
