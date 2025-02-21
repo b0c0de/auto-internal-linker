@@ -349,6 +349,32 @@ function auto_internal_linker_create_tracking_table() {
 }
 register_activation_hook(__FILE__, 'auto_internal_linker_create_tracking_table');
 
+add_action('wp_ajax_track_internal_link_click', 'track_internal_link_click');
+add_action('wp_ajax_nopriv_track_internal_link_click', 'track_internal_link_click');
+
+function track_internal_link_click() {
+    global $wpdb;
+    
+    $keyword_id = isset($_GET['keyword_id']) ? intval($_GET['keyword_id']) : 0;
+    $post_id = isset($_GET['post_id']) ? intval($_GET['post_id']) : 0;
+
+    if ($keyword_id && $post_id) {
+        $table_name = $wpdb->prefix . 'auto_internal_links_tracking';
+        
+        $wpdb->query($wpdb->prepare("
+            INSERT INTO $table_name (keyword_id, post_id, click_count) 
+            VALUES (%d, %d, 1) 
+            ON DUPLICATE KEY UPDATE click_count = click_count + 1, last_clicked = NOW()
+        ", $keyword_id, $post_id));
+    }
+
+    if (isset($_SERVER['HTTP_REFERER'])) {
+        wp_redirect($_SERVER['HTTP_REFERER']);
+    } else {
+        wp_redirect(home_url());
+    }
+    exit;
+}
 
 
 
