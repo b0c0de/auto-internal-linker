@@ -220,6 +220,32 @@ function auto_internal_linker_meta_box_callback($post) {
     <?php
 }
 
+// Save post meta when post is saved
+function auto_internal_linker_save_meta_box_data($post_id) {
+    // Check if nonce is set
+    if (!isset($_POST['auto_internal_linker_meta_box_nonce']) || 
+        !wp_verify_nonce($_POST['auto_internal_linker_meta_box_nonce'], 'auto_internal_linker_meta_box')) {
+        return;
+    }
+
+    // Don't save during autosaves or bulk edits
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+        return;
+    }
+
+    // Check user permissions
+    if (!current_user_can('edit_post', $post_id)) {
+        return;
+    }
+
+    // Get checkbox value (default is unchecked)
+    $disable_links = isset($_POST['disable_auto_internal_links']) ? '1' : '0';
+
+    // Update post meta
+    update_post_meta($post_id, '_disable_auto_internal_links', $disable_links);
+}
+add_action('save_post', 'auto_internal_linker_save_meta_box_data');
+
 
 
 // Hook to create table on plugin activation
