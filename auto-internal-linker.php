@@ -19,12 +19,12 @@ class AutoInternalLinker {
     private static $instance = null;
     
     private function __construct() {
-        add_action('network_admin_menu', [$this, 'create_network_settings_page']);
+        $this->log_file = WP_CONTENT_DIR . '/debug-auto-linker.log';
+        add_action('admin_notices', [$this, 'display_admin_notices']);
         add_action('admin_menu', [$this, 'create_settings_page']);
         add_action('admin_init', [$this, 'register_settings']);
         add_filter('the_content', [$this, 'apply_internal_links']);
     }
-
     public static function get_instance() {
         if (self::$instance === null) {
             self::$instance = new self();
@@ -89,15 +89,43 @@ class AutoInternalLinker {
         <?php
     }
 
-    public function apply_internal_links($content) {
-        $links = is_multisite() ? get_site_option('auto_internal_links_network', []) : get_option('auto_internal_links', []);
-        if (!empty($links)) {
+ public function apply_internal_links($content) {
+        $links = get_option('auto_internal_links', []);
+
+        if (!is_array($links)) {
+            $this->log_error("Invalid settings format for auto_internal_links.");
+            return $content;
+        }
+
+        try {
             foreach ($links as $keyword => $url) {
+                if (!filter_var($url, FILTER_VALIDATE_URL)) {
+                    $this->log_error("Invalid URL for keyword '$keyword': $url");
+                    continue;
+                }
                 $content = preg_replace("/\b" . preg_quote($keyword, '/') . "\b/i", '<a href="' . esc_url($url) . '">' . esc_html($keyword) . '</a>', $content, 1);
             }
+        } catch (Exception $e) {
+            $this->log_error("Error applying links: " . $e->getMessage());
         }
+
         return $content;
     }
+     private function log_error($message) {
+        if (WP_DEBUG) {
+            error_log("[Auto-Internal Linker] " . $message);
+        }
+        file_put_contents($this->log_file, date("Y-m-d H:i:s") . " - " . $message . "\n", FILE_APPEND);
+        set_transient('ail_admin_error', $message, 10);
+    }
+
+      public function display_admin_notices() {
+        if ($error = get_transient('ail_admin_error')) {
+            echo '<div class="notice notice-error is-dismissible"><p>' . esc_html($error) . '</p></div>';
+            delete_transient('ail_admin_error');
+        }
+    }
+
 }
 
 AutoInternalLinker::get_instance();
