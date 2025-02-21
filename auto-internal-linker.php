@@ -177,6 +177,22 @@ function auto_internal_linker_create_table() {
     dbDelta($sql);
 }
 
+public function apply_internal_links($content) {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'auto_internal_links';
+
+    $links = $wpdb->get_results("SELECT * FROM $table_name WHERE enabled = 1", ARRAY_A);
+
+    if (!empty($links)) {
+        foreach ($links as $link) {
+            $content = preg_replace("/\b" . preg_quote($link['keyword'], '/') . "\b/i", '<a href="' . esc_url($link['url']) . '">' . esc_html($link['keyword']) . '</a>', $content, 1);
+        }
+    }
+
+    return $content;
+}
+
+
 // Hook to create table on plugin activation
 register_activation_hook(__FILE__, 'auto_internal_linker_create_table');
 
