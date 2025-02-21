@@ -376,6 +376,12 @@ function track_internal_link_click() {
     exit;
 }
 
+    function auto_internal_linker_enqueue_scripts() {
+    wp_enqueue_script('auto-internal-link-tracker', plugin_dir_url(__FILE__) . 'tracker.js', array('jquery'), null, true);
+}
+add_action('wp_enqueue_scripts', 'auto_internal_linker_enqueue_scripts');
+
+
 
 
 // Hook to create table on plugin activation
