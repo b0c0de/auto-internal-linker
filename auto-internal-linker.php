@@ -38,9 +38,12 @@ class AutoInternalLinker {
         add_options_page('Auto Internal Linker', 'Auto Linker', 'manage_options', 'auto-internal-linker', ['AutoInternalLinker_Settings', 'settings_page_html']);
     }
 
-    public function register_settings() {
-        register_setting('auto_internal_linker_group', 'auto_internal_links');
-    }
+   public function register_settings() {
+    register_setting('auto_internal_linker_group', 'auto_internal_links');
+    register_setting('auto_internal_linker_group', 'auto_internal_excluded_pages');
+    register_setting('auto_internal_linker_group', 'auto_internal_excluded_post_types');
+}
+
 
     public function enqueue_admin_assets() {
     wp_enqueue_style('auto-internal-linker-admin', plugin_dir_url(__FILE__) . 'assets/admin-style.css');
