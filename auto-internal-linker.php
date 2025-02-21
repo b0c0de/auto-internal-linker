@@ -198,8 +198,11 @@ public function apply_internal_links($content) {
             $pattern = '/\b(' . implode('|', array_map('preg_quote', $all_keywords)) . ')\b/i';
 
             // Replace only the first occurrence of any keyword or synonym
-            $content = preg_replace($pattern, '<a href="' . esc_url($link['url']) . '">$1</a>', $content, 1);
-        }
+            $content = preg_replace_callback($pattern, function ($matches) use ($link, $post) {
+    $track_url = site_url('/wp-admin/admin-ajax.php?action=track_internal_link_click&keyword_id=' . $link['id'] . '&post_id=' . $post->ID);
+    return '<a href="' . esc_url($track_url) . '" data-final-url="' . esc_url($link['url']) . '" class="tracked-link">' . $matches[0] . '</a>';
+}, $content, 1);
+
     }
 
     return $content;
