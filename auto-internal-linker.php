@@ -90,27 +90,30 @@ class AutoInternalLinker {
     }
 
  public function apply_internal_links($content) {
+    if (is_admin()) {
+        return $content; // Don't modify content in the admin area
+    }
+
+    $cache_key = 'auto_internal_links_cache';
+    $links = get_transient($cache_key);
+
+    // Fetch from database only if cache is empty
+    if ($links === false) {
         $links = get_option('auto_internal_links', []);
+        set_transient($cache_key, $links, HOUR_IN_SECONDS); // Cache for 1 hour
+    }
 
-        if (!is_array($links)) {
-            $this->log_error("Invalid settings format for auto_internal_links.");
-            return $content;
-        }
-
-        try {
-            foreach ($links as $keyword => $url) {
-                if (!filter_var($url, FILTER_VALIDATE_URL)) {
-                    $this->log_error("Invalid URL for keyword '$keyword': $url");
-                    continue;
-                }
+    if (!empty($links)) {
+        foreach ($links as $keyword => $url) {
+            if (stripos($content, $keyword) !== false) {
                 $content = preg_replace("/\b" . preg_quote($keyword, '/') . "\b/i", '<a href="' . esc_url($url) . '">' . esc_html($keyword) . '</a>', $content, 1);
             }
-        } catch (Exception $e) {
-            $this->log_error("Error applying links: " . $e->getMessage());
         }
-
-        return $content;
     }
+
+    return $content;
+}
+
      private function log_error($message) {
         if (WP_DEBUG) {
             error_log("[Auto-Internal Linker] " . $message);
