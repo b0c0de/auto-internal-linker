@@ -327,6 +327,25 @@ function auto_internal_linker_settings_page_html() {
     <?php
 }
 
+function auto_internal_linker_create_tracking_table() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'auto_internal_links_tracking';
+    $charset_collate = $wpdb->get_charset_collate();
+
+    $sql = "CREATE TABLE IF NOT EXISTS $table_name (
+        id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        keyword_id BIGINT UNSIGNED NOT NULL,
+        post_id BIGINT UNSIGNED NOT NULL,
+        click_count INT UNSIGNED DEFAULT 0,
+        last_clicked TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (keyword_id) REFERENCES {$wpdb->prefix}auto_internal_links(id) ON DELETE CASCADE
+    ) $charset_collate;";
+
+    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+    dbDelta($sql);
+}
+register_activation_hook(__FILE__, 'auto_internal_linker_create_tracking_table');
+
 
 
 
