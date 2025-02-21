@@ -5,6 +5,10 @@ if (!defined('ABSPATH')) {
 
 class AutoInternalLinker_Linker {
  public function apply_internal_links($content) {
+    if ($this->should_exclude_page()) {
+        return $content;
+    }
+
     $cache_key = 'auto_internal_links_' . md5($content);
     $cached_content = get_transient($cache_key);
 
@@ -17,6 +21,41 @@ class AutoInternalLinker_Linker {
     // Cache result for 12 hours
     set_transient($cache_key, $content, 12 * HOUR_IN_SECONDS);
     return $content;
+}
+
+/**
+ * Check if the current post/page should be excluded from internal linking.
+ */
+private function should_exclude_page() {
+    if (is_admin()) {
+        return true; // Don't apply links in the admin panel
+    }
+
+    $excluded_pages = get_option('auto_internal_excluded_pages', '');
+    $excluded_post_types = get_option('auto_internal_excluded_post_types', '');
+
+    $excluded_pages = !empty($excluded_pages) ? explode(',', $excluded_pages) : [];
+    $excluded_post_types = !empty($excluded_post_types) ? explode(',', $excluded_post_types) : [];
+
+    global $post;
+    if (!$post) {
+        return false;
+    }
+
+    $post_id = $post->ID;
+    $post_type = get_post_type($post);
+
+    // Check if post ID is excluded
+    if (in_array($post_id, $excluded_pages)) {
+        return true;
+    }
+
+    // Check if post type is excluded
+    if (in_array($post_type, $excluded_post_types)) {
+        return true;
+    }
+
+    return false;
 }
 
 private function optimized_linking($content) {
