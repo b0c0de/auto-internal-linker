@@ -297,6 +297,41 @@ add_action('wp_mail_failed', function($wp_error) {
     ]);
 });
 
+public function display_email_logs() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'auto_internal_linker_email_logs';
+    $logs = $wpdb->get_results("SELECT * FROM $table_name ORDER BY timestamp DESC LIMIT 10");
+
+    echo '<div class="wrap"><h2>Email Error Logs</h2>';
+    if ($logs) {
+        echo '<table class="widefat"><thead><tr><th>Recipient</th><th>Subject</th><th>Error</th><th>Time</th></tr></thead><tbody>';
+        foreach ($logs as $log) {
+            echo "<tr>
+                <td>{$log->recipient}</td>
+                <td>{$log->subject}</td>
+                <td>{$log->error_message}</td>
+                <td>{$log->timestamp}</td>
+            </tr>";
+        }
+        echo '</tbody></table>';
+    } else {
+        echo '<p>No email errors logged.</p>';
+    }
+    echo '</div>';
+}
+
+// Add to admin menu
+public function create_email_log_page() {
+    add_submenu_page(
+        'auto-internal-linker',
+        'Email Logs',
+        'Email Logs',
+        'manage_options',
+        'auto-internal-linker-email-logs',
+        [$this, 'display_email_logs']
+    );
+}
+add_action('admin_menu', [$this, 'create_email_log_page']);
 
 
 }
