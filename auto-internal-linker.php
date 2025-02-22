@@ -585,6 +585,19 @@ function auto_internal_linker_generate_and_send_report() {
     update_option('auto_internal_linker_last_report_sent', time());
 }
 
+function auto_internal_linker_generate_csv($data) {
+    $file_path = WP_CONTENT_DIR . '/uploads/email_report.csv';
+    $file = fopen($file_path, 'w');
+
+    fputcsv($file, ['Timestamp', 'Email', 'Status', 'Error Message']);
+    foreach ($data as $row) {
+        fputcsv($file, [$row->timestamp, $row->email, $row->status ? 'Sent' : 'Failed', $row->error_message]);
+    }
+
+    fclose($file);
+    return $file_path;
+}
+
 
 
 
