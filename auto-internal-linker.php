@@ -393,6 +393,46 @@ add_action('admin_menu', function() {
     );
 });
 
+function auto_internal_linker_email_stats_page() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'auto_internal_linker_email_logs';
+
+    // Fetch counts
+    $total_sent = $wpdb->get_var("SELECT COUNT(*) FROM $table_name WHERE error_message IS NULL");
+    $total_failed = $wpdb->get_var("SELECT COUNT(*) FROM $table_name WHERE error_message IS NOT NULL");
+    $success_rate = $total_sent + $total_failed > 0 ? round(($total_sent / ($total_sent + $total_failed)) * 100, 2) : 0;
+
+    // Fetch recent activity
+    $recent_emails = $wpdb->get_results("SELECT * FROM $table_name ORDER BY timestamp DESC LIMIT 10");
+
+    echo '<div class="wrap"><h1>Email Statistics</h1>';
+    echo "<p><strong>Total Sent:</strong> $total_sent</p>";
+    echo "<p><strong>Total Failed:</strong> $total_failed</p>";
+    echo "<p><strong>Success Rate:</strong> $success_rate%</p>";
+
+    echo '<h2>Recent Email Activity</h2>';
+    if ($recent_emails) {
+        echo '<table class="widefat">
+                <thead>
+                    <tr><th>Recipient</th><th>Subject</th><th>Status</th><th>Time</th></tr>
+                </thead>
+                <tbody>';
+        foreach ($recent_emails as $email) {
+            $status = $email->error_message ? '❌ Failed' : '✅ Sent';
+            echo "<tr>
+                <td>{$email->recipient}</td>
+                <td>{$email->subject}</td>
+                <td>{$status}</td>
+                <td>{$email->timestamp}</td>
+            </tr>";
+        }
+        echo '</tbody></table>';
+    } else {
+        echo '<p>No email activity recorded yet.</p>';
+    }
+    echo '</div>';
+}
+
 
 }
 
