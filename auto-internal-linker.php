@@ -504,6 +504,7 @@ function auto_internal_linker_settings_page() {
 function auto_internal_linker_register_settings() {
     register_setting('auto_internal_linker_settings', 'auto_internal_linker_email_reports');
     register_setting('auto_internal_linker_settings', 'auto_internal_linker_report_frequency');
+    register_setting('auto_internal_linker_settings', 'auto_internal_linker_report_recipients');
 
     add_settings_section('auto_internal_linker_section', 'Email Report Settings', null, 'auto_internal_linker');
 
@@ -531,9 +532,21 @@ function auto_internal_linker_register_settings() {
         'auto_internal_linker',
         'auto_internal_linker_section'
     );
+
+    add_settings_field(
+        'auto_internal_linker_report_recipients',
+        'Report Recipients',
+        function () {
+            $value = get_option('auto_internal_linker_report_recipients', get_option('admin_email'));
+            echo '<input type="text" name="auto_internal_linker_report_recipients" value="' . esc_attr($value) . '" placeholder="Enter emails, separated by commas">';
+        },
+        'auto_internal_linker',
+        'auto_internal_linker_section'
+    );
 }
 
 add_action('admin_init', 'auto_internal_linker_register_settings');
+
 
 function auto_internal_linker_schedule_cron() {
     if (!wp_next_scheduled('auto_internal_linker_send_email_report')) {
