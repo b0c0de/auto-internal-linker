@@ -283,6 +283,19 @@ public function plugin_activation() {
     dbDelta($sql);
 }
 
+add_action('wp_mail_failed', function($wp_error) {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'auto_internal_linker_email_logs';
+
+    $error_data = $wp_error->get_error_data();
+    
+    $wpdb->insert($table_name, [
+        'recipient' => isset($error_data['to']) ? implode(', ', $error_data['to']) : 'Unknown',
+        'subject'   => isset($error_data['subject']) ? $error_data['subject'] : 'Unknown',
+        'message'   => isset($error_data['message']) ? $error_data['message'] : 'Unknown',
+        'error_message' => $wp_error->get_error_message(),
+    ]);
+});
 
 
 
