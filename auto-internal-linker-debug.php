@@ -1,3 +1,19 @@
+<?php
+/**
+ * Plugin Name: Auto-Internal Linker
+ * Plugin URI: https://github.com/your-repo-link
+ * Description: A WordPress plugin that automatically links specific keywords to pre-defined internal URLs.
+ * Version: 1.3.0
+ * Author: Bojan Cvjetković
+ * Author URI: https://brisk-web-services.com
+ * License: GPL2
+ * Network: true  // Enables multisite support
+ */
+
+// Prevent direct access
+if (!defined('ABSPATH')) {
+    exit;
+}
 function auto_internal_linker_log_debug($message) {
     if (!get_option('auto_internal_linker_debug_mode', 0)) {
         return; // Exit if debug mode is off
