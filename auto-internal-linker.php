@@ -158,6 +158,25 @@ public function apply_internal_links($content) {
 }
 add_action('admin_notices', [$this, 'admin_notices']);
 
+register_activation_hook(__FILE__, 'auto_internal_linker_create_log_table');
+
+function auto_internal_linker_create_log_table() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'auto_internal_linker_logs';
+
+    $charset_collate = $wpdb->get_charset_collate();
+
+    $sql = "CREATE TABLE $table_name (
+        id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+        user_id BIGINT UNSIGNED NOT NULL,
+        action TEXT NOT NULL,
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (id)
+    ) $charset_collate;";
+
+    require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+    dbDelta($sql);
+}
 
 }
 
