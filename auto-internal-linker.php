@@ -689,6 +689,27 @@ function auto_internal_linker_get_keywords() {
     return $cached_keywords;
 }
 
+function auto_internal_linker_register_debug_setting() {
+    register_setting('auto_internal_linker_group', 'auto_internal_linker_debug_mode');
+    add_settings_field(
+        'auto_internal_linker_debug_mode',
+        'Enable Debug Mode',
+        'auto_internal_linker_debug_mode_callback',
+        'auto_internal_linker_group',
+        'default'
+    );
+}
+
+function auto_internal_linker_debug_mode_callback() {
+    $debug_enabled = get_option('auto_internal_linker_debug_mode', 0);
+    ?>
+    <input type="checkbox" name="auto_internal_linker_debug_mode" value="1" <?php checked(1, $debug_enabled, true); ?>>
+    <label>Enable Debugging (Logs performance data in debug.log)</label>
+    <?php
+}
+
+add_action('admin_init', 'auto_internal_linker_register_debug_setting');
+
 
 }
 
