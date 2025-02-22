@@ -397,22 +397,48 @@ function auto_internal_linker_email_stats_page() {
     global $wpdb;
     $table_name = $wpdb->prefix . 'auto_internal_linker_email_logs';
 
+    // Fetch total sent and failed emails
     $total_sent = $wpdb->get_var("SELECT COUNT(*) FROM $table_name WHERE error_message IS NULL");
     $total_failed = $wpdb->get_var("SELECT COUNT(*) FROM $table_name WHERE error_message IS NOT NULL");
+
+    // Fetch daily email stats
+    $results = $wpdb->get_results("
+        SELECT DATE(timestamp) as date, 
+               COUNT(*) as total, 
+               SUM(CASE WHEN error_message IS NULL THEN 1 ELSE 0 END) as sent, 
+               SUM(CASE WHEN error_message IS NOT NULL THEN 1 ELSE 0 END) as failed
+        FROM $table_name 
+        GROUP BY DATE(timestamp) 
+        ORDER BY DATE(timestamp) ASC
+    ");
+
+    // Prepare data for the chart
+    $dates = [];
+    $sent_data = [];
+    $failed_data = [];
+
+    foreach ($results as $row) {
+        $dates[] = $row->date;
+        $sent_data[] = $row->sent;
+        $failed_data[] = $row->failed;
+    }
 
     echo '<div class="wrap"><h1>Email Statistics</h1>';
     echo "<p><strong>Total Sent:</strong> $total_sent</p>";
     echo "<p><strong>Total Failed:</strong> $total_failed</p>";
-    
-    // Chart canvas
+
+    // Chart canvases
     echo '<h2>Email Success vs Failure</h2>';
     echo '<canvas id="emailStatsChart" width="400" height="200"></canvas>';
+    
+    echo '<h2>Daily Email Trends</h2>';
+    echo '<canvas id="emailTrendsChart" width="400" height="200"></canvas>';
 
     ?>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            var ctx = document.getElementById('emailStatsChart').getContext('2d');
-            new Chart(ctx, {
+            var ctx1 = document.getElementById('emailStatsChart').getContext('2d');
+            new Chart(ctx1, {
                 type: 'doughnut',
                 data: {
                     labels: ['Sent', 'Failed'],
@@ -422,11 +448,34 @@ function auto_internal_linker_email_stats_page() {
                     }]
                 }
             });
+
+            var ctx2 = document.getElementById('emailTrendsChart').getContext('2d');
+            new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: <?php echo json_encode($dates); ?>,
+                    datasets: [
+                        {
+                            label: 'Sent Emails',
+                            data: <?php echo json_encode($sent_data); ?>,
+                            borderColor: '#28a745',
+                            fill: false
+                        },
+                        {
+                            label: 'Failed Emails',
+                            data: <?php echo json_encode($failed_data); ?>,
+                            borderColor: '#dc3545',
+                            fill: false
+                        }
+                    ]
+                }
+            });
         });
     </script>
     <?php
     echo '</div>';
 }
+
 
 
 add_action('admin_enqueue_scripts', function($hook) {
