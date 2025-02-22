@@ -439,6 +439,42 @@ function auto_internal_linker_email_stats_page() {
     }
     echo '</tbody></table></div>';
 }
+if (isset($_POST['export_csv'])) {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'auto_internal_linker_email_logs';
+
+    $date_range = isset($_POST['date_range']) ? sanitize_text_field($_POST['date_range']) : '7';
+
+    if ($date_range === 'all') {
+        $where_clause = "1=1"; // No date filter
+    } else {
+        $days = intval($date_range);
+        $where_clause = "timestamp >= DATE_SUB(NOW(), INTERVAL $days DAY)";
+    }
+
+    // Fetch data
+    $results = $wpdb->get_results("
+        SELECT timestamp, email, status, error_message
+        FROM $table_name 
+        WHERE $where_clause
+        ORDER BY timestamp DESC
+    ");
+
+    // Generate CSV
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="email_stats.csv"');
+
+    $output = fopen('php://output', 'w');
+    fputcsv($output, ['Timestamp', 'Email', 'Status', 'Error Message']);
+
+    foreach ($results as $row) {
+        fputcsv($output, [$row->timestamp, $row->email, $row->status ? 'Sent' : 'Failed', $row->error_message]);
+    }
+
+    fclose($output);
+    exit;
+}
+
 
 
 
