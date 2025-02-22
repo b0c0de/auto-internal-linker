@@ -69,17 +69,17 @@ public function sanitize_links($input) {
             return;
         }
         ?>
-        <div class="wrap">
-            <h1>Auto-Internal Linker Settings</h1>
-            <form method="post" action="options.php">
-                <?php
-                settings_fields('auto_internal_linker_group');
-                do_settings_sections('auto_internal_linker_group');
-                submit_button();
-                ?>
-            </form>
-        </div>
-        <?php
+       <div class="wrap">
+        <h1><?php esc_html_e('Auto-Internal Linker Settings', 'auto-internal-linker'); ?></h1>
+        <form method="post" action="options.php">
+            <?php
+            settings_fields('auto_internal_linker_group');
+            do_settings_sections('auto_internal_linker_group');
+            submit_button();
+            ?>
+        </form>
+    </div>
+    <?php
     }
 
     public function network_settings_page_html() {
