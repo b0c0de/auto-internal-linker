@@ -304,13 +304,18 @@ public function display_email_logs() {
 
     echo '<div class="wrap"><h2>Email Error Logs</h2>';
     if ($logs) {
-        echo '<table class="widefat"><thead><tr><th>Recipient</th><th>Subject</th><th>Error</th><th>Time</th></tr></thead><tbody>';
+        echo '<table class="widefat">
+                <thead>
+                    <tr><th>Recipient</th><th>Subject</th><th>Error</th><th>Time</th><th>Action</th></tr>
+                </thead>
+                <tbody>';
         foreach ($logs as $log) {
             echo "<tr>
                 <td>{$log->recipient}</td>
                 <td>{$log->subject}</td>
                 <td>{$log->error_message}</td>
                 <td>{$log->timestamp}</td>
+                <td><button class='button resend-email' data-id='{$log->id}'>Resend</button></td>
             </tr>";
         }
         echo '</tbody></table>';
@@ -318,7 +323,29 @@ public function display_email_logs() {
         echo '<p>No email errors logged.</p>';
     }
     echo '</div>';
+
+    // Add JavaScript for AJAX
+    echo '<script>
+        document.querySelectorAll(".resend-email").forEach(button => {
+            button.addEventListener("click", function() {
+                let emailId = this.getAttribute("data-id");
+                let btn = this;
+                btn.textContent = "Resending...";
+                fetch(ajaxurl, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: "action=resend_failed_email&email_id=" + emailId
+                })
+                .then(response => response.json())
+                .then(data => {
+                    btn.textContent = data.success ? "Resent" : "Failed";
+                    alert(data.message);
+                });
+            });
+        });
+    </script>';
 }
+
 
 // Add to admin menu
 public function create_email_log_page() {
