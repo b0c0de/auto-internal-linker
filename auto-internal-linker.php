@@ -710,6 +710,23 @@ function auto_internal_linker_debug_mode_callback() {
 
 add_action('admin_init', 'auto_internal_linker_register_debug_setting');
 
+function auto_internal_linker_apply_links_debug($content) {
+    $start_time = microtime(true);
+    $start_memory = memory_get_usage();
+
+    $content = auto_internal_linker_apply_links($content); // Process links
+
+    $execution_time = round(microtime(true) - $start_time, 4);
+    $memory_usage = round((memory_get_usage() - $start_memory) / 1024, 2); // KB
+
+    auto_internal_linker_log_debug("Linking executed in {$execution_time} sec, using {$memory_usage} KB memory.");
+
+    return $content;
+}
+
+remove_filter('the_content', 'auto_internal_linker_apply_links');
+add_filter('the_content', 'auto_internal_linker_apply_links_debug');
+
 
 }
 
