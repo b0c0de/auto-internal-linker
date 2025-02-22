@@ -204,6 +204,52 @@ public function sanitize_links($input) {
     return $sanitized_links;
 }
 
+public function create_audit_log_page() {
+    add_submenu_page(
+        'auto-internal-linker',
+        'Audit Log',
+        'Audit Log',
+        'manage_options',
+        'auto-internal-linker-log',
+        [$this, 'display_audit_log']
+    );
+}
+
+public function display_audit_log() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'auto_internal_linker_logs';
+    $logs = $wpdb->get_results("SELECT * FROM $table_name ORDER BY timestamp DESC");
+
+    ?>
+    <div class="wrap">
+        <h1>Audit Log</h1>
+        <table class="widefat">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>User</th>
+                    <th>Action</th>
+                    <th>Timestamp</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($logs as $log) : ?>
+                    <tr>
+                        <td><?php echo esc_html($log->id); ?></td>
+                        <td><?php echo esc_html(get_userdata($log->user_id)->user_login); ?></td>
+                        <td><?php echo esc_html($log->action); ?></td>
+                        <td><?php echo esc_html($log->timestamp); ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+    <?php
+}
+
+add_action('admin_menu', [$this, 'create_audit_log_page']);
+
+
 
 }
 
