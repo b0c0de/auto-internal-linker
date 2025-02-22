@@ -400,7 +400,6 @@ function auto_internal_linker_email_stats_page() {
     // Get selected date range (default: Last 7 days)
     $date_range = isset($_GET['date_range']) ? sanitize_text_field($_GET['date_range']) : '7';
 
-    // Define the WHERE clause based on date range
     if ($date_range === 'all') {
         $where_clause = "1=1"; // No date filter
     } else {
@@ -408,97 +407,39 @@ function auto_internal_linker_email_stats_page() {
         $where_clause = "timestamp >= DATE_SUB(NOW(), INTERVAL $days DAY)";
     }
 
-    // Fetch total sent and failed emails
-    $total_sent = $wpdb->get_var("SELECT COUNT(*) FROM $table_name WHERE error_message IS NULL AND $where_clause");
-    $total_failed = $wpdb->get_var("SELECT COUNT(*) FROM $table_name WHERE error_message IS NOT NULL AND $where_clause");
-
-    // Fetch daily email stats
+    // Fetch email log data
     $results = $wpdb->get_results("
-        SELECT DATE(timestamp) as date, 
-               COUNT(*) as total, 
-               SUM(CASE WHEN error_message IS NULL THEN 1 ELSE 0 END) as sent, 
-               SUM(CASE WHEN error_message IS NOT NULL THEN 1 ELSE 0 END) as failed
+        SELECT timestamp, email, status, error_message
         FROM $table_name 
         WHERE $where_clause
-        GROUP BY DATE(timestamp) 
-        ORDER BY DATE(timestamp) ASC
+        ORDER BY timestamp DESC
     ");
-
-    // Prepare data for the chart
-    $dates = [];
-    $sent_data = [];
-    $failed_data = [];
-
-    foreach ($results as $row) {
-        $dates[] = $row->date;
-        $sent_data[] = $row->sent;
-        $failed_data[] = $row->failed;
-    }
 
     echo '<div class="wrap"><h1>Email Statistics</h1>';
 
-    // Dropdown for date range selection
-    echo '<form method="GET" action="">';
-    echo '<input type="hidden" name="page" value="auto_internal_linker_email_stats">';
-    echo '<label for="date_range">Select Date Range: </label>';
-    echo '<select name="date_range" onchange="this.form.submit()">';
-    echo '<option value="7"' . selected($date_range, '7', false) . '>Last 7 Days</option>';
-    echo '<option value="30"' . selected($date_range, '30', false) . '>Last 30 Days</option>';
-    echo '<option value="all"' . selected($date_range, 'all', false) . '>All Time</option>';
-    echo '</select>';
+    // Export buttons
+    echo '<form method="POST" action="">';
+    echo '<input type="hidden" name="export_data" value="1">';
+    echo '<input type="hidden" name="date_range" value="' . esc_attr($date_range) . '">';
+    echo '<button type="submit" name="export_csv" class="button button-primary">📄 Export as CSV</button>';
+    echo ' ';
+    echo '<button type="submit" name="export_pdf" class="button button-secondary">📑 Export as PDF</button>';
     echo '</form>';
 
-    echo "<p><strong>Total Sent:</strong> $total_sent</p>";
-    echo "<p><strong>Total Failed:</strong> $total_failed</p>";
-
-    // Chart canvases
-    echo '<h2>Email Success vs Failure</h2>';
-    echo '<canvas id="emailStatsChart" width="400" height="200"></canvas>';
-    
-    echo '<h2>Daily Email Trends</h2>';
-    echo '<canvas id="emailTrendsChart" width="400" height="200"></canvas>';
-
-    ?>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var ctx1 = document.getElementById('emailStatsChart').getContext('2d');
-            new Chart(ctx1, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Sent', 'Failed'],
-                    datasets: [{
-                        data: [<?php echo $total_sent; ?>, <?php echo $total_failed; ?>],
-                        backgroundColor: ['#28a745', '#dc3545']
-                    }]
-                }
-            });
-
-            var ctx2 = document.getElementById('emailTrendsChart').getContext('2d');
-            new Chart(ctx2, {
-                type: 'line',
-                data: {
-                    labels: <?php echo json_encode($dates); ?>,
-                    datasets: [
-                        {
-                            label: 'Sent Emails',
-                            data: <?php echo json_encode($sent_data); ?>,
-                            borderColor: '#28a745',
-                            fill: false
-                        },
-                        {
-                            label: 'Failed Emails',
-                            data: <?php echo json_encode($failed_data); ?>,
-                            borderColor: '#dc3545',
-                            fill: false
-                        }
-                    ]
-                }
-            });
-        });
-    </script>
-    <?php
-    echo '</div>';
+    // Display data table
+    echo '<table class="wp-list-table widefat fixed striped">';
+    echo '<thead><tr><th>Timestamp</th><th>Email</th><th>Status</th><th>Error Message</th></tr></thead><tbody>';
+    foreach ($results as $row) {
+        echo "<tr>
+                <td>{$row->timestamp}</td>
+                <td>{$row->email}</td>
+                <td>" . ($row->status ? 'Sent' : 'Failed') . "</td>
+                <td>{$row->error_message}</td>
+              </tr>";
+    }
+    echo '</tbody></table></div>';
 }
+
 
 
 
