@@ -382,6 +382,17 @@ add_action('wp_ajax_resend_failed_email', function() {
     }
 });
 
+add_action('admin_menu', function() {
+    add_submenu_page(
+        'auto-internal-linker', 
+        'Email Statistics', 
+        'Email Stats', 
+        'manage_options', 
+        'auto-internal-linker-email-stats', 
+        'auto_internal_linker_email_stats_page'
+    );
+});
+
 
 }
 
