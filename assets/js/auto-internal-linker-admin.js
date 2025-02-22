@@ -1,11 +1,37 @@
 jQuery(document).ready(function ($) {
-    $("#load-keywords").click(function () {
+    // Add Keyword
+    $("#add-keyword").click(function () {
+        var keyword = $("#new-keyword").val();
+        var url = $("#new-url").val();
+
+        if (keyword && url) {
+            $.ajax({
+                url: ajaxurl,
+                type: "POST",
+                data: {
+                    action: "add_internal_link",
+                    keyword: keyword,
+                    url: url,
+                },
+                success: function (response) {
+                    location.reload();
+                }
+            });
+        } else {
+            $("#message-box").html('<div class="error">Please enter both keyword and URL.</div>');
+        }
+    });
+
+    // Remove Keyword
+    $(".remove-keyword").click(function () {
+        var keyword = $(this).data("keyword");
+
         $.ajax({
             url: ajaxurl,
             type: "POST",
-            data: { action: "load_internal_links" },
-            success: function (response) {
-                $("#keywords-list").html(response);
+            data: { action: "remove_internal_link", keyword: keyword },
+            success: function () {
+                location.reload();
             }
         });
     });
