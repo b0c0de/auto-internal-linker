@@ -33,11 +33,10 @@ class AutoInternalLinker {
     }
 
     public function create_settings_page() {
-        if (!current_user_can('manage_options')) {
-            return;
-        }
-        add_options_page('Auto Internal Linker', 'Auto Linker', 'manage_options', 'auto-internal-linker', [$this, 'settings_page_html']);
-    }
+    add_options_page('Auto Internal Linker', 'Auto Linker', 'manage_options', 'auto-internal-linker', [$this, 'settings_page_html']);
+    add_submenu_page('options-general.php', 'Debug Log', 'Debug Log', 'manage_options', 'auto-internal-linker-debug', [$this, 'debug_page_html']);
+}
+
 
     public function create_network_settings_page() {
         if (!is_multisite() || !current_user_can('manage_network_options')) {
