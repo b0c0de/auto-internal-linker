@@ -102,36 +102,20 @@ public function sanitize_links($input) {
     }
 
 public function apply_internal_links($content) {
-    if (is_admin()) {
-        return $content; // Don't modify content in the admin area
-    }
-
-    $links = get_option('auto_internal_links', []);
-
-    if ($links === false) {
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('Auto-Internal Linker Error: Failed to retrieve link settings.');
-        }
-        return $content;
-    }
-
-    if (!empty($links)) {
-        foreach ($links as $keyword => $url) {
-            if (empty($keyword) || empty($url)) {
-                if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log("Auto-Internal Linker Warning: Empty keyword or URL for {$keyword}");
-                }
-                continue;
-            }
-
-            if (stripos($content, $keyword) !== false) {
+    try {
+        $links = get_option('auto_internal_links', []);
+        if (!empty($links)) {
+            foreach ($links as $keyword => $url) {
                 $content = preg_replace("/\b" . preg_quote($keyword, '/') . "\b/i", '<a href="' . esc_url($url) . '">' . esc_html($keyword) . '</a>', $content, 1);
             }
         }
+        return $content;
+    } catch (Exception $e) {
+        ail_log_error("Error applying internal links: " . $e->getMessage());
+        return $content;
     }
-
-    return $content;
 }
+
 
 
      private function log_error($message) {
