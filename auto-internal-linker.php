@@ -727,6 +727,13 @@ function auto_internal_linker_apply_links_debug($content) {
 remove_filter('the_content', 'auto_internal_linker_apply_links');
 add_filter('the_content', 'auto_internal_linker_apply_links_debug');
 
+function ail_log_error($message) {
+    $log_file = WP_CONTENT_DIR . '/ail-debug.log'; // Log file location
+    $timestamp = date('Y-m-d H:i:s');
+    $formatted_message = "[$timestamp] $message" . PHP_EOL;
+    error_log($formatted_message, 3, $log_file);
+}
+
 
 }
 
