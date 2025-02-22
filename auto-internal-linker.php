@@ -598,6 +598,20 @@ function auto_internal_linker_generate_csv($data) {
     return $file_path;
 }
 
+function auto_internal_linker_send_email($csv_path) {
+    $admin_email = get_option('admin_email');
+    $subject = "📊 Auto Internal Linker: Email Report";
+    $message = "Here is your email report for the past 7 days.";
+
+    $headers = [
+        'Content-Type: text/html; charset=UTF-8',
+        'From: Auto Internal Linker <no-reply@yourdomain.com>'
+    ];
+
+    $attachments = [$csv_path];
+
+    wp_mail($admin_email, $subject, $message, $headers, $attachments);
+}
 
 
 
