@@ -433,6 +433,12 @@ function auto_internal_linker_email_stats_page() {
     echo '</div>';
 }
 
+add_action('admin_enqueue_scripts', function($hook) {
+    if ($hook === 'settings_page_auto-internal-linker-email-stats') {
+        wp_enqueue_script('chart-js', 'https://cdn.jsdelivr.net/npm/chart.js', [], null, true);
+    }
+});
+
 
 }
 
