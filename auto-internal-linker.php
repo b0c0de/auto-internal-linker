@@ -360,6 +360,28 @@ public function create_email_log_page() {
 }
 add_action('admin_menu', [$this, 'create_email_log_page']);
 
+add_action('wp_ajax_resend_failed_email', function() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'auto_internal_linker_email_logs';
+    $email_id = intval($_POST['email_id']);
+
+    $email = $wpdb->get_row("SELECT * FROM $table_name WHERE id = $email_id");
+
+    if (!$email) {
+        wp_send_json(['success' => false, 'message' => 'Email not found.']);
+    }
+
+    $headers = ['Content-Type: text/html; charset=UTF-8'];
+    $sent = wp_mail($email->recipient, $email->subject, $email->message, $headers);
+
+    if ($sent) {
+        $wpdb->delete($table_name, ['id' => $email_id]); // Remove from error log
+        wp_send_json(['success' => true, 'message' => 'Email resent successfully!']);
+    } else {
+        wp_send_json(['success' => false, 'message' => 'Failed to resend email.']);
+    }
+});
+
 
 }
 
