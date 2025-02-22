@@ -264,6 +264,26 @@ public function display_audit_log() {
 
 add_action('admin_menu', [$this, 'create_audit_log_page']);
 
+public function plugin_activation() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'auto_internal_linker_email_logs';
+
+    $charset_collate = $wpdb->get_charset_collate();
+
+    $sql = "CREATE TABLE IF NOT EXISTS $table_name (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        recipient VARCHAR(255) NOT NULL,
+        subject VARCHAR(255) NOT NULL,
+        message TEXT NOT NULL,
+        error_message TEXT NOT NULL,
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+    ) $charset_collate;";
+
+    require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+    dbDelta($sql);
+}
+
+
 
 
 }
