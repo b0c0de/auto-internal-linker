@@ -397,9 +397,20 @@ function auto_internal_linker_email_stats_page() {
     global $wpdb;
     $table_name = $wpdb->prefix . 'auto_internal_linker_email_logs';
 
+    // Get selected date range (default: Last 7 days)
+    $date_range = isset($_GET['date_range']) ? sanitize_text_field($_GET['date_range']) : '7';
+
+    // Define the WHERE clause based on date range
+    if ($date_range === 'all') {
+        $where_clause = "1=1"; // No date filter
+    } else {
+        $days = intval($date_range);
+        $where_clause = "timestamp >= DATE_SUB(NOW(), INTERVAL $days DAY)";
+    }
+
     // Fetch total sent and failed emails
-    $total_sent = $wpdb->get_var("SELECT COUNT(*) FROM $table_name WHERE error_message IS NULL");
-    $total_failed = $wpdb->get_var("SELECT COUNT(*) FROM $table_name WHERE error_message IS NOT NULL");
+    $total_sent = $wpdb->get_var("SELECT COUNT(*) FROM $table_name WHERE error_message IS NULL AND $where_clause");
+    $total_failed = $wpdb->get_var("SELECT COUNT(*) FROM $table_name WHERE error_message IS NOT NULL AND $where_clause");
 
     // Fetch daily email stats
     $results = $wpdb->get_results("
@@ -408,6 +419,7 @@ function auto_internal_linker_email_stats_page() {
                SUM(CASE WHEN error_message IS NULL THEN 1 ELSE 0 END) as sent, 
                SUM(CASE WHEN error_message IS NOT NULL THEN 1 ELSE 0 END) as failed
         FROM $table_name 
+        WHERE $where_clause
         GROUP BY DATE(timestamp) 
         ORDER BY DATE(timestamp) ASC
     ");
@@ -424,6 +436,18 @@ function auto_internal_linker_email_stats_page() {
     }
 
     echo '<div class="wrap"><h1>Email Statistics</h1>';
+
+    // Dropdown for date range selection
+    echo '<form method="GET" action="">';
+    echo '<input type="hidden" name="page" value="auto_internal_linker_email_stats">';
+    echo '<label for="date_range">Select Date Range: </label>';
+    echo '<select name="date_range" onchange="this.form.submit()">';
+    echo '<option value="7"' . selected($date_range, '7', false) . '>Last 7 Days</option>';
+    echo '<option value="30"' . selected($date_range, '30', false) . '>Last 30 Days</option>';
+    echo '<option value="all"' . selected($date_range, 'all', false) . '>All Time</option>';
+    echo '</select>';
+    echo '</form>';
+
     echo "<p><strong>Total Sent:</strong> $total_sent</p>";
     echo "<p><strong>Total Failed:</strong> $total_failed</p>";
 
@@ -475,6 +499,7 @@ function auto_internal_linker_email_stats_page() {
     <?php
     echo '</div>';
 }
+
 
 
 
