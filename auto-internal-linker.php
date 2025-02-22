@@ -69,12 +69,13 @@ public function sanitize_links($input) {
             return;
         }
         ?>
-       <div class="wrap">
+      <div class="wrap">
         <h1><?php esc_html_e('Auto-Internal Linker Settings', 'auto-internal-linker'); ?></h1>
         <form method="post" action="options.php">
             <?php
             settings_fields('auto_internal_linker_group');
             do_settings_sections('auto_internal_linker_group');
+            wp_nonce_field('auto_internal_linker_save', 'auto_internal_linker_nonce'); // 🔒 Add nonce
             submit_button();
             ?>
         </form>
