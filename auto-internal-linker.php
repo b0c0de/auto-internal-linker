@@ -535,6 +535,57 @@ function auto_internal_linker_register_settings() {
 
 add_action('admin_init', 'auto_internal_linker_register_settings');
 
+function auto_internal_linker_schedule_cron() {
+    if (!wp_next_scheduled('auto_internal_linker_send_email_report')) {
+        wp_schedule_event(time(), 'daily', 'auto_internal_linker_send_email_report');
+    }
+}
+
+add_action('wp', 'auto_internal_linker_schedule_cron');
+add_action('auto_internal_linker_send_email_report', 'auto_internal_linker_generate_and_send_report');
+
+function auto_internal_linker_generate_and_send_report() {
+    $enabled = get_option('auto_internal_linker_email_reports', 'no');
+    $frequency = get_option('auto_internal_linker_report_frequency', 'daily');
+
+    if ($enabled !== 'yes') {
+        return;
+    }
+
+    // Check if we need to send the report
+    if ($frequency === 'weekly') {
+        $last_sent = get_option('auto_internal_linker_last_report_sent', 0);
+        if (time() - $last_sent < WEEK_IN_SECONDS) {
+            return; // Skip if it's not time yet
+        }
+    }
+
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'auto_internal_linker_email_logs';
+    
+    // Fetch last 7 days' email logs
+    $results = $wpdb->get_results("
+        SELECT timestamp, email, status, error_message
+        FROM $table_name 
+        WHERE timestamp >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+        ORDER BY timestamp DESC
+    ");
+
+    if (!$results) {
+        return; // No data to report
+    }
+
+    // Generate CSV
+    $csv_file = auto_internal_linker_generate_csv($results);
+    
+    // Send email with CSV attachment
+    auto_internal_linker_send_email($csv_file);
+
+    // Update last sent time
+    update_option('auto_internal_linker_last_report_sent', time());
+}
+
+
 
 
 }
