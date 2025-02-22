@@ -612,7 +612,18 @@ function auto_internal_linker_generate_csv($data) {
 }
 
 function auto_internal_linker_send_email($csv_path) {
-    $admin_email = get_option('admin_email');
+    $recipient_emails = get_option('auto_internal_linker_report_recipients', get_option('admin_email'));
+    $emails = array_map('trim', explode(',', $recipient_emails));
+
+    // Validate emails
+    $valid_emails = array_filter($emails, function ($email) {
+        return filter_var($email, FILTER_VALIDATE_EMAIL);
+    });
+
+    if (empty($valid_emails)) {
+        return;
+    }
+
     $subject = "📊 Auto Internal Linker: Email Report";
     $message = "Here is your email report for the past 7 days.";
 
@@ -623,8 +634,11 @@ function auto_internal_linker_send_email($csv_path) {
 
     $attachments = [$csv_path];
 
-    wp_mail($admin_email, $subject, $message, $headers, $attachments);
+    foreach ($valid_emails as $email) {
+        wp_mail($email, $subject, $message, $headers, $attachments);
+    }
 }
+
 
 
 
