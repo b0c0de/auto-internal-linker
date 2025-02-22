@@ -83,23 +83,47 @@ public function sanitize_links($input) {
 }
 
     public function settings_page_html() {
-        if (!current_user_can('manage_options')) {
-            return;
-        }
-        ?>
-      <div class="wrap">
-        <h1><?php esc_html_e('Auto-Internal Linker Settings', 'auto-internal-linker'); ?></h1>
-        <form method="post" action="options.php">
-            <?php
-            settings_fields('auto_internal_linker_group');
-            do_settings_sections('auto_internal_linker_group');
-            wp_nonce_field('auto_internal_linker_save', 'auto_internal_linker_nonce'); // 🔒 Add nonce
-            submit_button();
-            ?>
-        </form>
+    ?>
+    <div class="wrap">
+        <h1>Auto-Internal Linker Settings</h1>
+        <p>Manage your internal linking keywords easily.</p>
+
+        <table class="wp-list-table widefat fixed striped">
+            <thead>
+                <tr>
+                    <th>Keyword</th>
+                    <th>URL</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="keywords-list">
+                <?php
+                $links = get_option('auto_internal_links', []);
+                if (!empty($links)) {
+                    foreach ($links as $keyword => $url) {
+                        echo '<tr>
+                            <td contenteditable="true" class="edit-keyword">' . esc_html($keyword) . '</td>
+                            <td contenteditable="true" class="edit-url">' . esc_url($url) . '</td>
+                            <td><button class="remove-keyword button button-secondary" data-keyword="' . esc_attr($keyword) . '">Remove</button></td>
+                        </tr>';
+                    }
+                } else {
+                    echo '<tr><td colspan="3">No keywords added yet.</td></tr>';
+                }
+                ?>
+            </tbody>
+        </table>
+
+        <h3>Add New Keyword</h3>
+        <input type="text" id="new-keyword" placeholder="Enter keyword" />
+        <input type="url" id="new-url" placeholder="Enter URL" />
+        <button id="add-keyword" class="button button-primary">Add Keyword</button>
+
+        <div id="message-box"></div> <!-- Success/Error Message Box -->
     </div>
     <?php
-    }
+}
+
 
     public function network_settings_page_html() {
         if (!current_user_can('manage_network_options')) {
