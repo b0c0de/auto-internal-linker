@@ -120,19 +120,23 @@ public function sanitize_links($input) {
     }
 
 public function apply_internal_links($content) {
-    try {
+    // Get cached links, if available
+    $links = get_transient('auto_internal_links_cache');
+
+    if ($links === false) {
         $links = get_option('auto_internal_links', []);
-        if (!empty($links)) {
-            foreach ($links as $keyword => $url) {
-                $content = preg_replace("/\b" . preg_quote($keyword, '/') . "\b/i", '<a href="' . esc_url($url) . '">' . esc_html($keyword) . '</a>', $content, 1);
-            }
-        }
-        return $content;
-    } catch (Exception $e) {
-        ail_log_error("Error applying internal links: " . $e->getMessage());
-        return $content;
+        set_transient('auto_internal_links_cache', $links, HOUR_IN_SECONDS); // Cache for 1 hour
     }
+
+    if (!empty($links)) {
+        foreach ($links as $keyword => $url) {
+            $content = preg_replace("/\b" . preg_quote($keyword, '/') . "\b/i", '<a href="' . esc_url($url) . '">' . esc_html($keyword) . '</a>', $content, 1);
+        }
+    }
+
+    return $content;
 }
+
 
 
 
