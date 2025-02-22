@@ -486,6 +486,56 @@ add_action('admin_enqueue_scripts', function($hook) {
     }
 });
 
+function auto_internal_linker_settings_page() {
+    ?>
+    <div class="wrap">
+        <h1>Auto Internal Linker Settings</h1>
+        <form method="post" action="options.php">
+            <?php
+            settings_fields('auto_internal_linker_settings');
+            do_settings_sections('auto_internal_linker');
+            submit_button();
+            ?>
+        </form>
+    </div>
+    <?php
+}
+
+function auto_internal_linker_register_settings() {
+    register_setting('auto_internal_linker_settings', 'auto_internal_linker_email_reports');
+    register_setting('auto_internal_linker_settings', 'auto_internal_linker_report_frequency');
+
+    add_settings_section('auto_internal_linker_section', 'Email Report Settings', null, 'auto_internal_linker');
+
+    add_settings_field(
+        'auto_internal_linker_email_reports',
+        'Enable Email Reports',
+        function () {
+            $value = get_option('auto_internal_linker_email_reports', 'no');
+            echo '<input type="checkbox" name="auto_internal_linker_email_reports" value="yes" ' . checked($value, 'yes', false) . '>';
+        },
+        'auto_internal_linker',
+        'auto_internal_linker_section'
+    );
+
+    add_settings_field(
+        'auto_internal_linker_report_frequency',
+        'Report Frequency',
+        function () {
+            $value = get_option('auto_internal_linker_report_frequency', 'daily');
+            echo '<select name="auto_internal_linker_report_frequency">
+                    <option value="daily" ' . selected($value, 'daily', false) . '>Daily</option>
+                    <option value="weekly" ' . selected($value, 'weekly', false) . '>Weekly</option>
+                  </select>';
+        },
+        'auto_internal_linker',
+        'auto_internal_linker_section'
+    );
+}
+
+add_action('admin_init', 'auto_internal_linker_register_settings');
+
+
 
 }
 
