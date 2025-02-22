@@ -47,11 +47,22 @@ class AutoInternalLinker {
     }
 
     public function register_settings() {
-        register_setting('auto_internal_linker_group', 'auto_internal_links');
-        if (is_multisite()) {
-            register_setting('auto_internal_linker_network_group', 'auto_internal_links_network');
+    register_setting('auto_internal_linker_group', 'auto_internal_links', [
+        'sanitize_callback' => [$this, 'sanitize_links']
+    ]);
+}
+
+public function sanitize_links($input) {
+    $sanitized_links = [];
+    if (is_array($input)) {
+        foreach ($input as $keyword => $url) {
+            $sanitized_keyword = sanitize_text_field($keyword);
+            $sanitized_url = esc_url_raw($url);
+            $sanitized_links[$sanitized_keyword] = $sanitized_url;
         }
     }
+    return $sanitized_links;
+}
 
     public function settings_page_html() {
         if (!current_user_can('manage_options')) {
