@@ -177,6 +177,33 @@ function auto_internal_linker_create_log_table() {
     require_once ABSPATH . 'wp-admin/includes/upgrade.php';
     dbDelta($sql);
 }
+public function log_change($action) {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'auto_internal_linker_logs';
+    $user_id = get_current_user_id();
+
+    $wpdb->insert($table_name, [
+        'user_id' => $user_id,
+        'action'  => sanitize_text_field($action),
+    ]);
+}
+
+public function sanitize_links($input) {
+    $sanitized_links = [];
+
+    if (is_array($input)) {
+        foreach ($input as $keyword => $url) {
+            $sanitized_keyword = sanitize_text_field($keyword);
+            $sanitized_url = esc_url_raw($url);
+            $sanitized_links[$sanitized_keyword] = $sanitized_url;
+        }
+    }
+
+    $this->log_change('Updated Auto-Internal Linker settings');
+
+    return $sanitized_links;
+}
+
 
 }
 
