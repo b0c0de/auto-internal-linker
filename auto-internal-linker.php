@@ -718,6 +718,15 @@ function ail_log_error($message) {
     error_log($formatted_message, 3, $log_file);
 }
 
+public function debug_page_html() {
+    $log_file = WP_CONTENT_DIR . '/ail-debug.log';
+    $logs = file_exists($log_file) ? array_reverse(array_slice(file($log_file), -20)) : [];
+
+    echo '<div class="wrap"><h1>Auto-Internal Linker Debug Log</h1>';
+    echo '<pre>' . esc_html(implode("", $logs)) . '</pre>';
+    echo '</div>';
+}
+
 
 }
 
