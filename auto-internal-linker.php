@@ -181,12 +181,27 @@ public function log_change($action) {
     global $wpdb;
     $table_name = $wpdb->prefix . 'auto_internal_linker_logs';
     $user_id = get_current_user_id();
+    $user = get_userdata($user_id);
+    $admin_email = get_option('admin_email');
 
+    // Insert log into database
     $wpdb->insert($table_name, [
         'user_id' => $user_id,
         'action'  => sanitize_text_field($action),
     ]);
+
+    // Send email notification to admin
+    $subject = "🔔 Auto-Internal Linker Settings Changed";
+    $message = "Hello,\n\nThe Auto-Internal Linker settings have been updated.\n\n";
+    $message .= "Action: " . sanitize_text_field($action) . "\n";
+    $message .= "By: " . esc_html($user->user_login) . "\n";
+    $message .= "Timestamp: " . current_time('mysql') . "\n\n";
+    $message .= "If this wasn't you, please review the changes immediately.\n\n";
+    $message .= "Best Regards,\nYour WordPress Team";
+
+    wp_mail($admin_email, $subject, $message);
 }
+
 
 public function sanitize_links($input) {
     $sanitized_links = [];
