@@ -1047,6 +1047,22 @@ function ail_apply_limited_links($content) {
 }
 add_filter('the_content', 'ail_apply_limited_links', 10);
 
+function ail_get_settings() {
+    if (is_multisite()) {
+        return get_site_option('auto_internal_links_settings', []);
+    } else {
+        return get_option('auto_internal_links_settings', []);
+    }
+}
+
+function ail_save_settings($settings) {
+    if (is_multisite()) {
+        update_site_option('auto_internal_links_settings', $settings);
+    } else {
+        update_option('auto_internal_links_settings', $settings);
+    }
+}
+
 
 }
 
