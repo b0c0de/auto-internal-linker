@@ -784,9 +784,15 @@ public function debug_page_html() {
 function ail_get_keywords() {
     global $wpdb;
     $table = $wpdb->prefix . 'auto_internal_links';
-    
-    return $wpdb->get_results("SELECT keyword, url FROM $table", ARRAY_A);
+
+    try {
+        return $wpdb->get_results("SELECT keyword, url FROM $table", ARRAY_A);
+    } catch (Exception $e) {
+        error_log('Database error in Auto-Internal Linker: ' . $e->getMessage());
+        return [];
+    }
 }
+
 
 
 
