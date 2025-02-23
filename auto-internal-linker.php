@@ -880,6 +880,25 @@ function ail_settings_page_html() {
     <?php
 }
 
+function ail_update_network_keywords($new_keywords) {
+    if (is_multisite()) {
+        update_site_option('auto_internal_links', $new_keywords);
+
+        // Clear cache on all subsites
+        $sites = get_sites();
+        foreach ($sites as $site) {
+            switch_to_blog($site->blog_id);
+            delete_transient('ail_keywords_cache');
+            restore_current_blog();
+        }
+
+        ail_log("Network-wide keywords updated, cache cleared on all subsites.");
+    } else {
+        update_option('auto_internal_links', $new_keywords);
+        delete_transient('ail_keywords_cache');
+    }
+}
+
 
 }
 
