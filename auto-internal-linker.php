@@ -992,6 +992,29 @@ function ail_exclude_woocommerce_pages($content) {
 
 add_filter('the_content', 'ail_exclude_woocommerce_pages', 10);
 
+function ail_get_cached_links() {
+    $cached_links = get_transient('ail_cached_links');
+    
+    if ($cached_links === false) {
+        $cached_links = get_option('auto_internal_links', []);
+        set_transient('ail_cached_links', $cached_links, HOUR_IN_SECONDS); // Cache for 1 hour
+    }
+
+    return $cached_links;
+}
+
+function ail_apply_internal_links_optimized($content) {
+    $links = ail_get_cached_links();
+    
+    if (!empty($links)) {
+        foreach ($links as $keyword => $url) {
+            $content = preg_replace("/\b" . preg_quote($keyword, '/') . "\b/i", '<a href="' . esc_url($url) . '">' . esc_html($keyword) . '</a>', $content, 1);
+        }
+    }
+
+    return $content;
+}
+add_filter('the_content', 'ail_apply_internal_links_optimized', 10);
 
 
 }
