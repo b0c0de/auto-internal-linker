@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Auto-Internal Linker
- * Plugin URI: https://github.com/your-repo-link
+ * Plugin URI: https://github.com/b0c0de/auto-internal-linker
  * Description: A WordPress plugin that automatically links specific keywords to pre-defined internal URLs.
  * Version: 1.0.0
  * Author: Bojan Cvjetković
