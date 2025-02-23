@@ -1016,6 +1016,18 @@ function ail_apply_internal_links_optimized($content) {
 }
 add_filter('the_content', 'ail_apply_internal_links_optimized', 10);
 
+function ail_fetch_keywords_from_db() {
+    global $wpdb;
+    $results = $wpdb->get_results("SELECT keyword, url FROM {$wpdb->prefix}auto_internal_links", ARRAY_A);
+
+    $links = [];
+    foreach ($results as $row) {
+        $links[$row['keyword']] = $row['url'];
+    }
+
+    return $links;
+}
+
 
 }
 
