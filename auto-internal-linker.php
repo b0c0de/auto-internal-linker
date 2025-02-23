@@ -952,19 +952,18 @@ function ail_get_supported_post_types() {
 }
 
 function ail_apply_internal_links($content) {
-    $links = get_option('auto_internal_links', []);
-    if (empty($links)) {
-        return $content;
-    }
+    $links = ail_get_keywords();
 
-    // Skip linking inside shortcodes
-    $content = preg_replace_callback('/\[.*?\]/', function($matches) {
-        return esc_html($matches[0]); 
-    }, $content);
+    if (!empty($links)) {
+        foreach ($links as $link) {
+            $keyword = $link['keyword'];
+            $url = esc_url($link['url']);
 
-    // Apply links normally
-    foreach ($links as $keyword => $url) {
-        $content = preg_replace("/\b" . preg_quote($keyword, '/') . "\b/i", '<a href="' . esc_url($url) . '">' . esc_html($keyword) . '</a>', $content, 1);
+            // Use simple str_replace() for exact matches (faster than regex)
+            if (stripos($content, $keyword) !== false) {
+                $content = str_replace($keyword, '<a href="' . $url . '">' . esc_html($keyword) . '</a>', $content);
+            }
+        }
     }
 
     return $content;
