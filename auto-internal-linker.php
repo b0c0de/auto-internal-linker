@@ -799,6 +799,15 @@ function ail_update_keywords($new_keywords) {
     delete_transient('ail_keywords_cache'); // Clear cache after update
 }
 
+function ail_replace_keywords($content) {
+    $keywords = ail_get_keywords();
+
+    foreach ($keywords as $keyword => $url) {
+        $content = str_replace($keyword, '<a href="' . esc_url($url) . '">' . esc_html($keyword) . '</a>', $content);
+    }
+
+    return $content;
+}
 
 
 }
