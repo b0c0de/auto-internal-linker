@@ -842,6 +842,18 @@ function ail_log($message) {
     }
 }
 
+function ail_safe_get_option($option_name) {
+    global $wpdb;
+
+    $result = get_option($option_name, []);
+
+    if ($result === false) {
+        ail_log("Database error: Failed to retrieve option '$option_name'");
+    }
+
+    return $result;
+}
+
 
 }
 
