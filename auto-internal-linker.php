@@ -786,12 +786,20 @@ function ail_get_keywords() {
 
     if ($cached_keywords === false) {
         $keywords = get_option('auto_internal_links', []);
-        set_transient('ail_keywords_cache', $keywords, HOUR_IN_SECONDS); // Cache for 1 hour
+        set_transient('ail_keywords_cache', $keywords, HOUR_IN_SECONDS);
+        ail_log("Cache updated: Keywords retrieved from database.");
         return $keywords;
     }
     
     return $cached_keywords;
 }
+
+function ail_update_keywords($new_keywords) {
+    update_option('auto_internal_links', $new_keywords);
+    delete_transient('ail_keywords_cache');
+    ail_log("Cache cleared: Keywords updated.");
+}
+
 
 // Clear cache when updating keywords
 function ail_update_keywords($new_keywords) {
