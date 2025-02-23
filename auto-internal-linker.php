@@ -977,6 +977,13 @@ function ail_apply_internal_links_woocommerce($content) {
 add_filter('woocommerce_short_description', 'ail_apply_internal_links_woocommerce', 10);
 add_filter('the_content', 'ail_apply_internal_links_woocommerce', 10);
 
+function ail_sanitize_content($content) {
+    return preg_replace_callback('/<[^>]+>|(\b\w+\b)/', function($matches) {
+        return isset($matches[1]) ? ail_apply_internal_links($matches[1]) : $matches[0];
+    }, $content);
+}
+
+
 
 }
 
