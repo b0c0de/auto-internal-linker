@@ -1063,6 +1063,31 @@ function ail_save_settings($settings) {
     }
 }
 
+function ail_network_menu() {
+    if (is_multisite() && is_network_admin()) {
+        add_menu_page(
+            'Auto-Internal Linker (Network)',
+            'Auto-Internal Linker',
+            'manage_network_options',
+            'ail-network-settings',
+            'ail_network_settings_page'
+        );
+    }
+}
+add_action('network_admin_menu', 'ail_network_menu');
+
+function ail_network_settings_page() {
+    ?>
+    <div class="wrap">
+        <h1>Auto-Internal Linker - Network Settings</h1>
+        <form method="post">
+            <p><label><input type="checkbox" name="enable_network_links" value="1"> Enable for All Sites</label></p>
+            <?php submit_button('Save Settings'); ?>
+        </form>
+    </div>
+    <?php
+}
+
 
 }
 
