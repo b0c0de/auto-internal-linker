@@ -951,6 +951,12 @@ function ail_get_supported_post_types() {
     return array_diff(array_merge($default_post_types, $all_post_types), $excluded_post_types);
 }
 
+/**
+ * Applies internal links to post content.
+ *
+ * @param string $content The post content.
+ * @return string Modified content with internal links.
+ */
 function ail_apply_internal_links($content) {
     $links = ail_get_keywords();
 
@@ -959,7 +965,6 @@ function ail_apply_internal_links($content) {
             $keyword = $link['keyword'];
             $url = esc_url($link['url']);
 
-            // Use simple str_replace() for exact matches (faster than regex)
             if (stripos($content, $keyword) !== false) {
                 $content = str_replace($keyword, '<a href="' . $url . '">' . esc_html($keyword) . '</a>', $content);
             }
@@ -968,6 +973,7 @@ function ail_apply_internal_links($content) {
 
     return $content;
 }
+
 
 function ail_apply_internal_links_woocommerce($content) {
     if (is_admin() || empty($content)) {
