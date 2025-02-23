@@ -809,6 +809,19 @@ function ail_replace_keywords($content) {
     return $content;
 }
 
+function ail_filter_content_once($content) {
+    static $processed = false;
+
+    if ($processed) {
+        return $content; // Prevent duplicate filtering
+    }
+
+    $processed = true;
+    return ail_replace_keywords($content);
+}
+
+add_filter('the_content', 'ail_filter_content_once', 10);
+
 
 }
 
