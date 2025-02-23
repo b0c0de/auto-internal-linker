@@ -822,6 +822,14 @@ function ail_filter_content_once($content) {
 
 add_filter('the_content', 'ail_filter_content_once', 10);
 
+function ail_log($message) {
+    if (defined('WP_DEBUG') && WP_DEBUG) {
+        $log_file = WP_CONTENT_DIR . '/ail_debug.log';
+        $time = date("Y-m-d H:i:s");
+        file_put_contents($log_file, "[$time] $message" . PHP_EOL, FILE_APPEND);
+    }
+}
+
 
 }
 
