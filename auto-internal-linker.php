@@ -1093,6 +1093,12 @@ function ail_network_settings_page() {
     <?php
 }
 
+echo esc_html(get_option('auto_internal_links_settings', ''));
+
+$input = sanitize_text_field($_POST['setting_name']);
+update_option('auto_internal_links_settings', $input);
+
+
 
 }
 
