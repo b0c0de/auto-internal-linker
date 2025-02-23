@@ -780,6 +780,25 @@ public function debug_page_html() {
     echo '</div>';
 }
 
+// Function to get keywords with caching
+function ail_get_keywords() {
+    $cached_keywords = get_transient('ail_keywords_cache');
+
+    if ($cached_keywords === false) {
+        $keywords = get_option('auto_internal_links', []);
+        set_transient('ail_keywords_cache', $keywords, HOUR_IN_SECONDS); // Cache for 1 hour
+        return $keywords;
+    }
+    
+    return $cached_keywords;
+}
+
+// Clear cache when updating keywords
+function ail_update_keywords($new_keywords) {
+    update_option('auto_internal_links', $new_keywords);
+    delete_transient('ail_keywords_cache'); // Clear cache after update
+}
+
 
 
 }
