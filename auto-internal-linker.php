@@ -801,13 +801,17 @@ function ail_update_keywords($new_keywords) {
 
 function ail_replace_keywords($content) {
     $keywords = ail_get_keywords();
-
+    
     foreach ($keywords as $keyword => $url) {
+        if (strpos($content, $keyword) !== false) {
+            ail_log("Replacing keyword: '$keyword' with link: $url");
+        }
         $content = str_replace($keyword, '<a href="' . esc_url($url) . '">' . esc_html($keyword) . '</a>', $content);
     }
 
     return $content;
 }
+
 
 function ail_filter_content_once($content) {
     static $processed = false;
