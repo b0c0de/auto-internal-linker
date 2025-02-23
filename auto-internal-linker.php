@@ -945,6 +945,25 @@ function ail_get_supported_post_types() {
     return array_diff(array_merge($default_post_types, $all_post_types), $excluded_post_types);
 }
 
+function ail_apply_internal_links($content) {
+    $links = get_option('auto_internal_links', []);
+    if (empty($links)) {
+        return $content;
+    }
+
+    // Skip linking inside shortcodes
+    $content = preg_replace_callback('/\[.*?\]/', function($matches) {
+        return esc_html($matches[0]); 
+    }, $content);
+
+    // Apply links normally
+    foreach ($links as $keyword => $url) {
+        $content = preg_replace("/\b" . preg_quote($keyword, '/') . "\b/i", '<a href="' . esc_url($url) . '">' . esc_html($keyword) . '</a>', $content, 1);
+    }
+
+    return $content;
+}
+
 
 
 }
