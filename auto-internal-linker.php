@@ -909,6 +909,31 @@ function ail_activate() {
 }
 register_activation_hook(__FILE__, 'ail_activate');
 
+function ail_apply_internal_links_builder_support($content) {
+    if (is_admin() || empty($content)) {
+        return $content;
+    }
+
+    // List of filters used by popular page builders
+    $filters = [
+        'the_content',        // Standard WP content
+        'elementor/widget/render_content', // Elementor
+        'wpb_widget_content', // WPBakery
+        'et_builder_render_layout', // Divi
+        'fl_builder_render_content', // Beaver Builder
+        'kc_content', // King Composer
+    ];
+
+    foreach ($filters as $filter) {
+        add_filter($filter, 'ail_apply_internal_links', 10);
+    }
+
+    return $content;
+}
+
+add_action('init', 'ail_apply_internal_links_builder_support');
+
+
 
 }
 
