@@ -899,6 +899,16 @@ function ail_update_network_keywords($new_keywords) {
     }
 }
 
+function ail_activate() {
+    if (is_multisite()) {
+        add_site_option('auto_internal_links', []);
+        add_site_option('ail_use_network_settings', 0);
+    } else {
+        add_option('auto_internal_links', []);
+    }
+}
+register_activation_hook(__FILE__, 'ail_activate');
+
 
 }
 
