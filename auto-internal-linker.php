@@ -1028,6 +1028,25 @@ function ail_fetch_keywords_from_db() {
     return $links;
 }
 
+function ail_apply_limited_links($content) {
+    $links = ail_get_cached_links();
+    $limit = 3; // Maximum links per post
+    $count = 0;
+
+    if (!empty($links)) {
+        foreach ($links as $keyword => $url) {
+            if ($count >= $limit) break;
+            if (strpos($content, $keyword) !== false) {
+                $content = preg_replace("/\b" . preg_quote($keyword, '/') . "\b/i", '<a href="' . esc_url($url) . '">' . esc_html($keyword) . '</a>', $content, 1);
+                $count++;
+            }
+        }
+    }
+
+    return $content;
+}
+add_filter('the_content', 'ail_apply_limited_links', 10);
+
 
 }
 
