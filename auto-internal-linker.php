@@ -782,12 +782,12 @@ public function debug_page_html() {
 
 // Function to get keywords with caching
 function ail_get_keywords() {
-    if (is_multisite()) {
-        return get_site_option('auto_internal_links', []);
-    } else {
-        return get_option('auto_internal_links', []);
-    }
+    global $wpdb;
+    $table = $wpdb->prefix . 'auto_internal_links';
+    
+    return $wpdb->get_results("SELECT keyword, url FROM $table", ARRAY_A);
 }
+
 
 
 function ail_update_keywords($new_keywords) {
