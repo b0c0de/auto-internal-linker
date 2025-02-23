@@ -983,6 +983,15 @@ function ail_sanitize_content($content) {
     }, $content);
 }
 
+function ail_exclude_woocommerce_pages($content) {
+    if (is_cart() || is_checkout() || is_account_page()) {
+        return $content; // No changes for these pages
+    }
+    return ail_apply_internal_links($content);
+}
+
+add_filter('the_content', 'ail_exclude_woocommerce_pages', 10);
+
 
 
 }
