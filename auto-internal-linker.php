@@ -850,6 +850,36 @@ function ail_safe_get_option($option_name) {
     return $result;
 }
 
+function ail_register_multisite_setting() {
+    if (is_multisite()) {
+        register_setting('auto_internal_linker_group', 'ail_use_network_settings');
+    }
+}
+add_action('admin_init', 'ail_register_multisite_setting');
+
+function ail_settings_page_html() {
+    ?>
+    <div class="wrap">
+        <h1>Auto-Internal Linker Settings</h1>
+        <form method="post" action="options.php">
+            <?php
+            settings_fields('auto_internal_linker_group');
+            do_settings_sections('auto_internal_linker_group');
+            ?>
+            
+            <?php if (is_multisite()): ?>
+                <label>
+                    <input type="checkbox" name="ail_use_network_settings" value="1" <?php checked(1, get_option('ail_use_network_settings', 0)); ?>>
+                    Use Network-Wide Settings
+                </label>
+            <?php endif; ?>
+
+            <?php submit_button(); ?>
+        </form>
+    </div>
+    <?php
+}
+
 
 }
 
