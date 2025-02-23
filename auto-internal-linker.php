@@ -964,6 +964,18 @@ function ail_apply_internal_links($content) {
     return $content;
 }
 
+function ail_apply_internal_links_woocommerce($content) {
+    if (is_admin() || empty($content)) {
+        return $content;
+    }
+
+    // Apply internal linking
+    return ail_apply_internal_links($content);
+}
+
+// Apply links to product descriptions
+add_filter('woocommerce_short_description', 'ail_apply_internal_links_woocommerce', 10);
+add_filter('the_content', 'ail_apply_internal_links_woocommerce', 10);
 
 
 }
