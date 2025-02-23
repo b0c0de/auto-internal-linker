@@ -782,17 +782,13 @@ public function debug_page_html() {
 
 // Function to get keywords with caching
 function ail_get_keywords() {
-    $cached_keywords = get_transient('ail_keywords_cache');
-
-    if ($cached_keywords === false) {
-        $keywords = get_option('auto_internal_links', []);
-        set_transient('ail_keywords_cache', $keywords, HOUR_IN_SECONDS);
-        ail_log("Cache updated: Keywords retrieved from database.");
-        return $keywords;
+    if (is_multisite()) {
+        return get_site_option('auto_internal_links', []);
+    } else {
+        return get_option('auto_internal_links', []);
     }
-    
-    return $cached_keywords;
 }
+
 
 function ail_update_keywords($new_keywords) {
     update_option('auto_internal_links', $new_keywords);
