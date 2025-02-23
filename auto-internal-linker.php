@@ -933,6 +933,18 @@ function ail_apply_internal_links_builder_support($content) {
 
 add_action('init', 'ail_apply_internal_links_builder_support');
 
+function ail_get_supported_post_types() {
+    $default_post_types = ['post', 'page'];
+    
+    // Get all registered post types
+    $all_post_types = get_post_types(['public' => true], 'names');
+    
+    // Exclude unnecessary post types
+    $excluded_post_types = ['attachment', 'revision', 'nav_menu_item'];
+    
+    return array_diff(array_merge($default_post_types, $all_post_types), $excluded_post_types);
+}
+
 
 
 }
