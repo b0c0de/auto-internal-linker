@@ -51,6 +51,17 @@ class AutoInternalLinker_Settings {
 
                 <?php submit_button(); ?>
             </form>
+
+            <div style="margin-top: 30px; padding: 20px; background: #ffffff; border: 1px solid #ccd0d4; border-left: 4px solid #2271b1; max-width: 720px; box-shadow: 0 1px 1px rgba(0,0,0,.04);">
+                <h2 style="margin-top: 0; font-size: 16px;">🏗️ Need a Complete Internal Linking &amp; SEO Content Architecture?</h2>
+                <p style="font-size: 13px; line-height: 1.5; color: #3c434a;">
+                    Automating keyword links is just the first step. At <strong>Brisk Web Services</strong>, we build scalable <strong>Authority Content Systems™</strong>, Topic Cluster maps, and EEAT-driven SEO architectures for affiliate brands, finance websites, and agencies.
+                </p>
+                <p style="margin-bottom: 0;">
+                    <a href="https://brisk-web-services.com" target="_blank" rel="noopener noreferrer" class="button button-primary">Book a Free Strategy Call</a>
+                    <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="button" style="margin-left: 8px;">Free SEO Blueprints (GitHub)</a>
+                </p>
+            </div>
         </div>
 
         <script>
