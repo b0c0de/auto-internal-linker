@@ -250,11 +250,23 @@ final class AIL_Auto_Internal_Linker {
 						<?php echo esc_html( $type->labels->name ); ?>
 					</label>
 				<?php endforeach; ?>
-				<p><button type="submit" class="button button-primary"><?php esc_html_e( 'Save', 'auto-internal-linker' ); ?></button></p>
+								<p><button type="submit" class="button button-primary"><?php esc_html_e( 'Save', 'auto-internal-linker' ); ?></button></p>
 			</form>
+
+			<div style="margin-top: 30px; padding: 20px; background: #ffffff; border: 1px solid #ccd0d4; border-left: 4px solid #2271b1; max-width: 720px; box-shadow: 0 1px 1px rgba(0,0,0,.04);">
+				<h2 style="margin-top: 0; font-size: 16px;">🏗️ <?php esc_html_e( 'Need a Complete Internal Linking & SEO Content Architecture?', 'auto-internal-linker' ); ?></h2>
+				<p style="font-size: 13px; line-height: 1.5; color: #3c434a;">
+					<?php esc_html_e( 'Automating keyword links is just the first step. At Brisk Web Services, we build scalable Authority Content Systems™, Topic Cluster maps, and EEAT-driven SEO architectures for affiliate brands, finance websites, and agencies.', 'auto-internal-linker' ); ?>
+				</p>
+				<p style="margin-bottom: 0;">
+					<a href="https://brisk-web-services.com" target="_blank" rel="noopener noreferrer" class="button button-primary"><?php esc_html_e( 'Book a Free Strategy Call', 'auto-internal-linker' ); ?></a>
+					<a href="https://github.com/b0c0de/authority-seo-architecture" target="_blank" rel="noopener noreferrer" class="button" style="margin-left: 8px;"><?php esc_html_e( 'Free SEO Blueprints (GitHub)', 'auto-internal-linker' ); ?></a>
+				</p>
+			</div>
 		</div>
 		<?php
 	}
+
 
 	/* ------------------------------------------------------------------
 	 * Admin: form handlers
