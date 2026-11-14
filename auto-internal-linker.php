@@ -3,7 +3,7 @@
  * Plugin Name:       Auto-Internal Linker
  * Plugin URI:        https://github.com/b0c0de/auto-internal-linker 
  * Description:       Automatically links keywords you define to internal URLs. One link per keyword per post, never inside headings or existing links.
- * Version:           1.0.1
+ * Version:           1.3.1
  * Requires at least: 5.8
  * Requires PHP:      7.4
  * Author:            Bojan Cvjetković
